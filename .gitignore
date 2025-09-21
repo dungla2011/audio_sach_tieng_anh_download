@@ -1,0 +1,107 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+# Audio files and downloaded content
+[Audio]*/
+*.mp3
+*.wav
+*.m4a
+*.flac
+
+# Backup and temporary files
+bak/
+*.bak
+*.tmp
+*.temp
+
+# Log files
+*.log
+debug_*.json
+debug_*.html
+
+# Response files
+*_response.json
+*_response.html
+curl_*.json
+
+# History and cache
+.history/
+*.cache
+[Audio]
+# OneDrive extracted content
+*_OneDrive/
+onedrive_urls.*
+
+# Test files (keep main scripts but ignore test outputs)
+test_*.json
+test_*.html
