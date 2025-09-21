@@ -143,16 +143,18 @@ class BrowserSessionDownloader:
             playlist_data = response.json()
             if isinstance(playlist_data, dict):
                 # Convert to format expected by download function
-                if any(key for key in playlist_data.keys() if '/' in key):  # OneDrive format
+                # Check if this looks like a track-based playlist (Track 01, Track 02, etc.)
+                if any(key for key in playlist_data.keys() if key.lower().startswith('track') or '/' in key):
                     files = []
                     for key, file_info in playlist_data.items():
-                        if isinstance(file_info, dict):
+                        if isinstance(file_info, dict) and not file_info.get('is_dir', False):
                             files.append({
                                 'name': file_info.get('title', file_info.get('name', key)),
                                 'size': file_info.get('size', 0),
                                 'downloadUrl': file_info.get('download', file_info.get('downloadUrl', '')),
                                 'id': file_info.get('id', ''),
-                                'poster': file_info.get('poster', '')
+                                'poster': file_info.get('poster', ''),
+                                'source': file_info.get('source', '')
                             })
                     
                     print(f"✅ Found {len(files)} audio files")
