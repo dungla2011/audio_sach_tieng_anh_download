@@ -143,20 +143,42 @@ class BrowserSessionDownloader:
             playlist_data = response.json()
             if isinstance(playlist_data, dict):
                 # Convert to format expected by download function
-                # Check if this looks like a track-based playlist (Track 01, Track 02, etc.)
-                if any(key for key in playlist_data.keys() if key.lower().startswith('track') or '/' in key):
-                    files = []
-                    for key, file_info in playlist_data.items():
-                        if isinstance(file_info, dict) and not file_info.get('is_dir', False):
+                # Check if this looks like audio file data by examining the structure
+                files = []
+                audio_file_count = 0
+                
+                for key, file_info in playlist_data.items():
+                    if isinstance(file_info, dict) and not file_info.get('is_dir', False):
+                        # Check if this looks like an audio file object
+                        has_title = 'title' in file_info or 'name' in file_info
+                        has_download = 'download' in file_info or 'downloadUrl' in file_info
+                        has_size = 'size' in file_info
+                        is_audio = file_info.get('type', '').startswith('audio/') or key.lower().endswith('.mp3')
+                        
+                        # If it has the basic structure of an audio file, include it
+                        if has_title and has_download and has_size:
+                            audio_file_count += 1
+                            
+                            # Clean up the filename - remove redundant prefixes for display
+                            clean_name = file_info.get('title', file_info.get('name', key))
+                            display_name = clean_name
+                            
+                            # Remove common prefixes like "SP2_" from display name
+                            if clean_name.startswith(('SP1_', 'SP2_', 'SP3_')):
+                                display_name = clean_name[4:]  # Remove "SP2_" prefix for display
+                            
                             files.append({
-                                'name': file_info.get('title', file_info.get('name', key)),
+                                'name': display_name,
+                                'original_name': clean_name,  # Keep original for filename
                                 'size': file_info.get('size', 0),
                                 'downloadUrl': file_info.get('download', file_info.get('downloadUrl', '')),
                                 'id': file_info.get('id', ''),
                                 'poster': file_info.get('poster', ''),
-                                'source': file_info.get('source', '')
+                                'source': file_info.get('source', ''),
+                                'type': file_info.get('type', '')
                             })
-                    
+                
+                if audio_file_count > 0:
                     print(f"✅ Found {len(files)} audio files")
                     return {'files': files}
                 else:
@@ -219,8 +241,10 @@ class BrowserSessionDownloader:
         failed_downloads = 0
         
         for i, file_info in enumerate(files, 1):
-            name = file_info.get('name', f'audio_{i}')
-            safe_name = self.safe_filename(name)
+            # Use original_name for filename if available, otherwise use name
+            display_name = file_info.get('name', f'audio_{i}')
+            filename = file_info.get('original_name', display_name)
+            safe_name = self.safe_filename(filename)
             download_url = file_info.get('downloadUrl', '')
             file_size = file_info.get('size', 0)
             
@@ -228,7 +252,7 @@ class BrowserSessionDownloader:
             file_path = os.path.join(download_dir, f"{safe_name}.mp3")
             if os.path.exists(file_path):
                 existing_size = os.path.getsize(file_path)
-                print(f"{i:3d}/{len(files)} ⏭️  Skipping: {safe_name}")
+                print(f"{i:3d}/{len(files)} ⏭️  Skipping: {display_name}")
                 print(f"          File already exists ({self.format_size(existing_size)})")
                 
                 # Optional: Check if size matches (for verification)
@@ -240,7 +264,7 @@ class BrowserSessionDownloader:
                 successful_downloads += 1
                 continue
             
-            print(f"{i:3d}/{len(files)} 📥 Downloading: {safe_name}")
+            print(f"{i:3d}/{len(files)} 📥 Downloading: {display_name}")
             print(f"          Size: {file_size:,} bytes ({self.format_size(file_size)})")
             
             if not download_url:
