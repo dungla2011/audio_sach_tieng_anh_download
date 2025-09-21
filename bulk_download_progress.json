@@ -1,12 +1,12 @@
 {
   "stats": {
     "total_items": 5879,
-    "processed": 4,
+    "processed": 7,
     "successful": 0,
-    "failed": 4,
+    "failed": 7,
     "skipped": 0,
     "start_time": 1758442945.2120764,
-    "current_item": 4
+    "current_item": 7
   },
   "failed_urls": [
     {
@@ -40,8 +40,32 @@
       "stdout": "",
       "return_code": 1,
       "timestamp": "2025-09-21T15:22:30.983643"
+    },
+    {
+      "url": "https://sachtienganhhanoi.com/audio-oxford-new-headway-upper-intermediate-pronunciation-course/",
+      "title": "[Audio] Oxford New Headway – Upper Intermediate Pronunciation Course",
+      "error": "Traceback (most recent call last):\n  File \"E:\\Projects\\DownloadSachTiengAnhAudio\\01-ok-auto_downloader.py\", line 203, in <module>\n    main()\n    ~~~~^^\n  File \"E:\\Projects\\DownloadSachTiengAnhAudio\\01-ok-auto_downloader.py\", line 26, in main\n    print(\"\\U0001f3b5 Auto Audio Downloader for sachtienganhhanoi.com\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\Python313\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f3b5' in position 0: character maps to <undefined>\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"E:\\Projects\\DownloadSachTiengAnhAudio\\01-ok-auto_downloader.py\", line 208, in <module>\n    print(f\"\\n\\u274c Unexpected error: {e}\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\Python313\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\u274c' in position 2: character maps to <undefined>",
+      "stdout": "",
+      "return_code": 1,
+      "timestamp": "2025-09-21T18:31:02.805416"
+    },
+    {
+      "url": "https://sachtienganhhanoi.com/audio-achievers-grade-6789-students-book-1-1-1-1-1-2/",
+      "title": "[AUDIO] Achievers Grade 9 Student Book",
+      "error": "Traceback (most recent call last):\n  File \"E:\\Projects\\DownloadSachTiengAnhAudio\\01-ok-auto_downloader.py\", line 203, in <module>\n    main()\n    ~~~~^^\n  File \"E:\\Projects\\DownloadSachTiengAnhAudio\\01-ok-auto_downloader.py\", line 26, in main\n    print(\"\\U0001f3b5 Auto Audio Downloader for sachtienganhhanoi.com\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\Python313\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f3b5' in position 0: character maps to <undefined>\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"E:\\Projects\\DownloadSachTiengAnhAudio\\01-ok-auto_downloader.py\", line 208, in <module>\n    print(f\"\\n\\u274c Unexpected error: {e}\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\Python313\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\u274c' in position 2: character maps to <undefined>",
+      "stdout": "",
+      "return_code": 1,
+      "timestamp": "2025-09-21T18:31:04.512416"
+    },
+    {
+      "url": "https://sachtienganhhanoi.com/audio-oxford-bookworms-library-stage-5-far-from-the-madding-crowd/",
+      "title": "[Audio] Oxford Bookworms Library Stage 5: Far From The Madding Crowd",
+      "error": "Traceback (most recent call last):\n  File \"E:\\Projects\\DownloadSachTiengAnhAudio\\01-ok-auto_downloader.py\", line 203, in <module>\n    main()\n    ~~~~^^\n  File \"E:\\Projects\\DownloadSachTiengAnhAudio\\01-ok-auto_downloader.py\", line 26, in main\n    print(\"\\U0001f3b5 Auto Audio Downloader for sachtienganhhanoi.com\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\Python313\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f3b5' in position 0: character maps to <undefined>\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"E:\\Projects\\DownloadSachTiengAnhAudio\\01-ok-auto_downloader.py\", line 208, in <module>\n    print(f\"\\n\\u274c Unexpected error: {e}\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\Python313\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\u274c' in position 2: character maps to <undefined>",
+      "stdout": "",
+      "return_code": 1,
+      "timestamp": "2025-09-21T18:31:06.189583"
     }
   ],
   "successful_urls": [],
-  "last_update": "2025-09-21T15:22:31.030965"
+  "last_update": "2025-09-21T18:31:06.273054"
 }

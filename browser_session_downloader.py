@@ -224,6 +224,22 @@ class BrowserSessionDownloader:
             download_url = file_info.get('downloadUrl', '')
             file_size = file_info.get('size', 0)
             
+            # Check if file already exists
+            file_path = os.path.join(download_dir, f"{safe_name}.mp3")
+            if os.path.exists(file_path):
+                existing_size = os.path.getsize(file_path)
+                print(f"{i:3d}/{len(files)} ⏭️  Skipping: {safe_name}")
+                print(f"          File already exists ({self.format_size(existing_size)})")
+                
+                # Optional: Check if size matches (for verification)
+                if file_size > 0 and existing_size == file_size:
+                    print("          ✅ Size matches - file complete")
+                elif file_size > 0:
+                    print(f"          ⚠️  Size mismatch: expected {self.format_size(file_size)}")
+                
+                successful_downloads += 1
+                continue
+            
             print(f"{i:3d}/{len(files)} 📥 Downloading: {safe_name}")
             print(f"          Size: {file_size:,} bytes ({self.format_size(file_size)})")
             

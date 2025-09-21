@@ -1,0 +1,15 @@
+[2025-09-21 18:31:02] Starting bulk download of 5879 audio items
+[2025-09-21 18:31:02] [5/5879] Starting: [Audio] Oxford New Headway – Upper Intermediate Pr...
+[2025-09-21 18:31:02]   URL: https://sachtienganhhanoi.com/audio-oxford-new-headway-upper-intermediate-pronunciation-course/
+[2025-09-21 18:31:02]   ❌ FAILED (code 1): Traceback (most recent call last):
+  File "E:\Projects\DownloadSachTiengAnhAudio\01-ok-auto_download
+[2025-09-21 18:31:03] [6/5879] Starting: [AUDIO] Achievers Grade 9 Student Book...
+[2025-09-21 18:31:03]   URL: https://sachtienganhhanoi.com/audio-achievers-grade-6789-students-book-1-1-1-1-1-2/
+[2025-09-21 18:31:04]   ❌ FAILED (code 1): Traceback (most recent call last):
+  File "E:\Projects\DownloadSachTiengAnhAudio\01-ok-auto_download
+[2025-09-21 18:31:05] [7/5879] Starting: [Audio] Oxford Bookworms Library Stage 5: Far From...
+[2025-09-21 18:31:05]   URL: https://sachtienganhhanoi.com/audio-oxford-bookworms-library-stage-5-far-from-the-madding-crowd/
+[2025-09-21 18:31:06]   ❌ FAILED (code 1): Traceback (most recent call last):
+  File "E:\Projects\DownloadSachTiengAnhAudio\01-ok-auto_download
+[2025-09-21 18:31:06] 
+⏹️  Download interrupted by user
