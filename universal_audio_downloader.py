@@ -252,9 +252,10 @@ class UniversalAudioDownloader:
             print("❌ No files found in playlist")
             return
         
-        # Create download directory
+        # Create download directory in Download folder
         safe_title = self.safe_filename(page_title)
-        download_dir = safe_title
+        base_download_dir = "Download"
+        download_dir = os.path.join(base_download_dir, safe_title)
         os.makedirs(download_dir, exist_ok=True)
         print(f"📁 Created directory: {download_dir}")
         

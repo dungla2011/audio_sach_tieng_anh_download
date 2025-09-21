@@ -203,9 +203,10 @@ class BrowserSessionDownloader:
             print("❌ No files found in playlist")
             return
         
-        # Create download directory
+        # Create download directory in Download folder
         safe_title = self.safe_filename(page_title)
-        download_dir = safe_title
+        base_download_dir = "Download"
+        download_dir = os.path.join(base_download_dir, safe_title)
         os.makedirs(download_dir, exist_ok=True)
         print(f"📁 Created directory: {download_dir}")
         
@@ -312,8 +313,24 @@ class BrowserSessionDownloader:
             title_tag = soup.find('title')
             if title_tag:
                 title = title_tag.text.strip()
-                title = title.replace(' - Sách Tiếng Anh Hà Nội', '')
+                
+                # Remove various forms of "Sách tiếng Anh Hà Nội" (case insensitive)
+                title = re.sub(r'\s*-\s*Sách [Tt]iếng [Aa]nh [Hh]à [Nn]ội\s*', '', title)
+                title = re.sub(r'\s*\|\s*Sách [Tt]iếng [Aa]nh [Hh]à [Nn]ội\s*', '', title)
+                title = re.sub(r'Sách [Tt]iếng [Aa]nh [Hh]à [Nn]ội\s*-?\s*', '', title)
+                title = re.sub(r'\s*Sách [Tt]iếng [Aa]nh [Hh]à [Nn]ội\s*', '', title)
+                
+                # Remove "[Audio]" or "[AUDIO]" (case insensitive)
+                title = re.sub(r'\[?[Aa][Uu][Dd][Ii][Oo]\]?\s*', '', title)
+                
+                # Remove "Audio " prefix
                 title = title.replace('Audio ', '')
+                
+                # Clean up extra spaces and dashes
+                title = re.sub(r'\s*-\s*$', '', title)  # Remove trailing dash
+                title = re.sub(r'^\s*-\s*', '', title)  # Remove leading dash
+                title = re.sub(r'\s+', ' ', title).strip()  # Normalize spaces
+                
                 return title
         except:
             pass

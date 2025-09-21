@@ -1,0 +1,150 @@
+{
+  "test_info": {
+    "timestamp": "20250921_135625",
+    "total_tests": 14,
+    "successful_responses": 14
+  },
+  "responses": [
+    {
+      "params": {
+        "action": "ptp_load_posts"
+      },
+      "status_code": 200,
+      "content_length": 39,
+      "content": "Error: posts table could not be loaded.",
+      "is_json": false
+    },
+    {
+      "params": {
+        "action": "ptp_load_posts",
+        "page": "2"
+      },
+      "status_code": 200,
+      "content_length": 39,
+      "content": "Error: posts table could not be loaded.",
+      "is_json": false
+    },
+    {
+      "params": {
+        "action": "ptp_load_posts",
+        "paged": "2"
+      },
+      "status_code": 200,
+      "content_length": 39,
+      "content": "Error: posts table could not be loaded.",
+      "is_json": false
+    },
+    {
+      "params": {
+        "action": "ptp_load_posts",
+        "nonce": "87320d8eab"
+      },
+      "status_code": 200,
+      "content_length": 39,
+      "content": "Error: posts table could not be loaded.",
+      "is_json": false
+    },
+    {
+      "params": {
+        "action": "ptp_load_posts",
+        "security": "87320d8eab"
+      },
+      "status_code": 200,
+      "content_length": 39,
+      "content": "Error: posts table could not be loaded.",
+      "is_json": false
+    },
+    {
+      "params": {
+        "action": "ptp_load_posts",
+        "_wpnonce": "87320d8eab"
+      },
+      "status_code": 200,
+      "content_length": 39,
+      "content": "Error: posts table could not be loaded.",
+      "is_json": false
+    },
+    {
+      "params": {
+        "action": "ptp_load_posts",
+        "category": "audio"
+      },
+      "status_code": 200,
+      "content_length": 39,
+      "content": "Error: posts table could not be loaded.",
+      "is_json": false
+    },
+    {
+      "params": {
+        "action": "ptp_load_posts",
+        "post_type": "product"
+      },
+      "status_code": 200,
+      "content_length": 39,
+      "content": "Error: posts table could not be loaded.",
+      "is_json": false
+    },
+    {
+      "params": {
+        "action": "ptp_load_posts",
+        "page": "2",
+        "nonce": "87320d8eab"
+      },
+      "status_code": 200,
+      "content_length": 39,
+      "content": "Error: posts table could not be loaded.",
+      "is_json": false
+    },
+    {
+      "params": {
+        "action": "ptp_load_posts",
+        "paged": "2",
+        "security": "87320d8eab"
+      },
+      "status_code": 200,
+      "content_length": 39,
+      "content": "Error: posts table could not be loaded.",
+      "is_json": false
+    },
+    {
+      "params": {
+        "action": "ptp_load_posts",
+        "offset": "10"
+      },
+      "status_code": 200,
+      "content_length": 39,
+      "content": "Error: posts table could not be loaded.",
+      "is_json": false
+    },
+    {
+      "params": {
+        "action": "ptp_load_posts",
+        "offset": "20"
+      },
+      "status_code": 200,
+      "content_length": 39,
+      "content": "Error: posts table could not be loaded.",
+      "is_json": false
+    },
+    {
+      "params": {
+        "action": "ptp_load_posts",
+        "posts_per_page": "10"
+      },
+      "status_code": 200,
+      "content_length": 39,
+      "content": "Error: posts table could not be loaded.",
+      "is_json": false
+    },
+    {
+      "params": {
+        "action": "ptp_load_posts",
+        "numberposts": "10"
+      },
+      "status_code": 200,
+      "content_length": 39,
+      "content": "Error: posts table could not be loaded.",
+      "is_json": false
+    }
+  ]
+}

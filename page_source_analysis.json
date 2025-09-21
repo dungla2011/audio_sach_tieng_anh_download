@@ -1,0 +1,28 @@
+{
+  "page_info": {
+    "url": "https://sachtienganhhanoi.com/audio_stream/",
+    "status_code": 200,
+    "content_length": 364560,
+    "title": "AUDIO Library (sachtienganhhanoi.com) - Sách tiếng Anh Hà Nội"
+  },
+  "pagination_elements": [],
+  "audio_links": [
+    {
+      "url": "https://sachtienganhhanoi.com/audio_stream/",
+      "text": "AUDIO",
+      "class": []
+    },
+    {
+      "url": "https://sachtienganhhanoi.com/shop/do-tuoi/kindergarten/memberaudio-goi-thanh-vien-de-su-dung-audio-video-khong-gioi-han-thoi-gian/",
+      "text": "hướng dẫn thanh toán",
+      "class": []
+    }
+  ],
+  "ajax_patterns": [
+    {
+      "pattern": "ptp_load_posts",
+      "description": "AJAX Action"
+    }
+  ],
+  "ajax_data_elements": []
+}

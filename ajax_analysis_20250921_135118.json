@@ -1,0 +1,130 @@
+{
+  "page_analysis": {
+    "nonces": {
+      "general_nonce": "9db36dce66",
+      "ajax_nonce": "9ead1f942a"
+    },
+    "javascript": {
+      "script_tags": 88,
+      "ajax_calls": [],
+      "admin_ajax_references": 10,
+      "wp_localize_scripts": [
+        [
+          "t",
+          "{supportTests:e,timestamp:(new Date).valueOf()}"
+        ],
+        [
+          "woocommerce_params",
+          "{\"ajax_url\":\"\\/wp-admin\\/admin-ajax.php\",\"wc_ajax_url\":\"\\/?wc-ajax=%%endpoint%%\",\"i18n_password_show\":\"Hi\\u1ec3n th\\u1ecb m\\u1eadt kh\\u1ea9u\",\"i18n_password_hide\":\"\\u1ea8n m\\u1eadt kh\\u1ea9u\"}"
+        ],
+        [
+          "devvn_reviews",
+          "{\"ajax_url\":\"https:\\/\\/sachtienganhhanoi.com\\/wp-admin\\/admin-ajax.php\",\"img_size\":\"912000\",\"img_size_text\":\"891 KB\",\"cmt_length\":\"10\",\"number_img_upload\":\"5\",\"star_1\":\"R\\u1ea5t t\\u1ec7\",\"star_2\":\"Kh\\u00f4ng t\\u1ec7\",\"star_3\":\"Trung b\\u00ecnh\",\"star_4\":\"T\\u1ed1t\",\"star_5\":\"Tuy\\u1ec7t v\\u1eddi\",\"name_required_text\":\"T\\u00ean l\\u00e0 b\\u1eaft bu\\u1ed9c!\",\"email_required_text\":\"Email l\\u00e0 b\\u1eaft bu\\u1ed9c!\",\"email_incorrect_text\":\"\\u0110\\u1ecbnh d\\u1ea1ng email sai!\",\"phone_required_text\":\"S\\u1ed1 \\u0111i\\u1ec7n tho\\u1ea1i l\\u00e0 b\\u1eaft bu\\u1ed9c!\",\"phone_incorrect_text\":\"S\\u1ed1 \\u0111i\\u1ec7n tho\\u1ea1i kh\\u00f4ng ch\\u00ednh x\\u00e1c!\",\"cmt_required_text\":\"N\\u1ed9i dung b\\u00ecnh lu\\u1eadn l\\u00e0 b\\u1eaft bu\\u1ed9c!\",\"minlength_text\":\"T\\u1ed1i thi\\u1ec3u 10 k\\u00fd t\\u1ef1\",\"minlength_text2\":\"k\\u00fd t\\u1ef1 (T\\u1ed1i thi\\u1ec3u 10)\",\"file_format_text\":\"H\\u00ecnh \\u1ea3nh kh\\u00f4ng \\u0111\\u00fang \\u0111\\u1ecbnh d\\u1ea1ng. Ch\\u1ec9 ch\\u1ea5p nh\\u1eadn jpg\\/png\\/gif\",\"file_size_text\":\"H\\u00ecnh \\u1ea3nh qu\\u00e1 l\\u1edbn. Ch\\u1ec9 nh\\u1eefng \\u1ea3nh <= 891 KB \\u0111\\u01b0\\u1ee3c ph\\u00e9p t\\u1ea3i l\\u00ean\",\"file_length_text\":\"Ch\\u1ec9 cho ph\\u00e9p t\\u1ea3i l\\u00ean 5 \\u1ea3nh\",\"review_success\":\"\\u0110\\u00e1nh gi\\u00e1 th\\u00e0nh c\\u00f4ng!\",\"vietnamphone\":\"1\",\"required_phone\":\"1\",\"post_required_phone\":\"1\",\"disable_owl_slider\":\"1\",\"enable_img_popup\":\"0\",\"code\":\"xX=0lIt3138364292Yuk2buFGao5WYn5WZpRHajF2cuc3d3JCLi02bj5Sav5WYohmbhdmbllGdoNWYzJyWYy\"}"
+        ],
+        [
+          "devvn_shortcode_reviews",
+          "{\"ajax_url\":\"https:\\/\\/sachtienganhhanoi.com\\/wp-admin\\/admin-ajax.php\",\"img_size\":\"912000\",\"img_size_text\":\"891 KB\",\"cmt_length\":\"10\",\"number_img_upload\":\"5\",\"star_1\":\"R\\u1ea5t t\\u1ec7\",\"star_2\":\"Kh\\u00f4ng t\\u1ec7\",\"star_3\":\"Trung b\\u00ecnh\",\"star_4\":\"T\\u1ed1t\",\"star_5\":\"Tuy\\u1ec7t v\\u1eddi\",\"name_required_text\":\"T\\u00ean l\\u00e0 b\\u1eaft bu\\u1ed9c!\",\"email_required_text\":\"Email l\\u00e0 b\\u1eaft bu\\u1ed9c!\",\"email_incorrect_text\":\"\\u0110\\u1ecbnh d\\u1ea1ng email sai!\",\"phone_required_text\":\"S\\u1ed1 \\u0111i\\u1ec7n tho\\u1ea1i l\\u00e0 b\\u1eaft bu\\u1ed9c!\",\"phone_incorrect_text\":\"S\\u1ed1 \\u0111i\\u1ec7n tho\\u1ea1i kh\\u00f4ng ch\\u00ednh x\\u00e1c!\",\"cmt_required_text\":\"N\\u1ed9i dung b\\u00ecnh lu\\u1eadn l\\u00e0 b\\u1eaft bu\\u1ed9c!\",\"minlength_text\":\"T\\u1ed1i thi\\u1ec3u 10 k\\u00fd t\\u1ef1\",\"minlength_text2\":\"k\\u00fd t\\u1ef1 (T\\u1ed1i thi\\u1ec3u 10)\",\"file_format_text\":\"H\\u00ecnh \\u1ea3nh kh\\u00f4ng \\u0111\\u00fang \\u0111\\u1ecbnh d\\u1ea1ng. Ch\\u1ec9 ch\\u1ea5p nh\\u1eadn jpg\\/png\\/gif\",\"file_size_text\":\"H\\u00ecnh \\u1ea3nh qu\\u00e1 l\\u1edbn. Ch\\u1ec9 nh\\u1eefng \\u1ea3nh <= 891 KB \\u0111\\u01b0\\u1ee3c ph\\u00e9p t\\u1ea3i l\\u00ean\",\"file_length_text\":\"Ch\\u1ec9 cho ph\\u00e9p t\\u1ea3i l\\u00ean 5 \\u1ea3nh\",\"review_success\":\"\\u0110\\u00e1nh gi\\u00e1 th\\u00e0nh c\\u00f4ng!\",\"vietnamphone\":\"1\",\"required_phone\":\"1\",\"post_required_phone\":\"1\",\"disable_owl_slider\":\"1\",\"enable_img_popup\":\"0\",\"code\":\"xX=0lIt3138364292Yuk2buFGao5WYn5WZpRHajF2cuc3d3JCLi02bj5Sav5WYohmbhdmbllGdoNWYzJyWYy\"}"
+        ],
+        [
+          "varWidgetOpts",
+          "{\"shallNotFixed\":\".site-footer\",\"margin_top\":\"0\",\"disable_width\":\"768\",\"disable_height\":\"300\"}"
+        ],
+        [
+          "wc_add_to_cart_params",
+          "{\"ajax_url\":\"\\/wp-admin\\/admin-ajax.php\",\"wc_ajax_url\":\"\\/?wc-ajax=%%endpoint%%\",\"i18n_view_cart\":\"Xem gi\\u1ecf h\\u00e0ng\",\"cart_url\":\"https:\\/\\/sachtienganhhanoi.com\\/cart\\/\",\"is_cart\":\"\",\"cart_redirect_after_add\":\"no\"}"
+        ],
+        [
+          "xlwuev",
+          "{\"plugin_version\":\"3.5.0\"}"
+        ],
+        [
+          "wc_cart_fragments_params",
+          "{\"ajax_url\":\"\\/wp-admin\\/admin-ajax.php\",\"wc_ajax_url\":\"\\/?wc-ajax=%%endpoint%%\",\"cart_hash_key\":\"wc_cart_hash_e77922ff3199efe6b3868ac3a07cd754\",\"fragment_name\":\"wc_fragments_e77922ff3199efe6b3868ac3a07cd754\",\"request_timeout\":\"5000\"}"
+        ],
+        [
+          "wc_add_to_cart_variation_params",
+          "{\"wc_ajax_url\":\"\\/?wc-ajax=%%endpoint%%\",\"i18n_no_matching_variations_text\":\"R\\u1ea5t ti\\u1ebfc, kh\\u00f4ng c\\u00f3 s\\u1ea3n ph\\u1ea9m n\\u00e0o ph\\u00f9 h\\u1ee3p v\\u1edbi l\\u1ef1a ch\\u1ecdn c\\u1ee7a b\\u1ea1n. H\\u00e3y ch\\u1ecdn m\\u1ed9t ph\\u01b0\\u01a1ng th\\u1ee9c k\\u1ebft h\\u1ee3p kh\\u00e1c.\",\"i18n_make_a_selection_text\":\"Ch\\u1ecdn c\\u00e1c t\\u00f9y ch\\u1ecdn cho s\\u1ea3n ph\\u1ea9m tr\\u01b0\\u1edbc khi cho s\\u1ea3n ph\\u1ea9m v\\u00e0o gi\\u1ecf h\\u00e0ng c\\u1ee7a b\\u1ea1n.\",\"i18n_unavailable_text\":\"R\\u1ea5t ti\\u1ebfc, s\\u1ea3n ph\\u1ea9m n\\u00e0y hi\\u1ec7n kh\\u00f4ng t\\u1ed3n t\\u1ea1i. H\\u00e3y ch\\u1ecdn m\\u1ed9t ph\\u01b0\\u01a1ng th\\u1ee9c k\\u1ebft h\\u1ee3p kh\\u00e1c.\",\"i18n_reset_alert_text\":\"L\\u1ef1a ch\\u1ecdn c\\u1ee7a b\\u1ea1n \\u0111\\u00e3 \\u0111\\u01b0\\u1ee3c \\u0111\\u1eb7t l\\u1ea1i. Vui l\\u00f2ng ch\\u1ecdn m\\u1ed9t s\\u1ed1 t\\u00f9y ch\\u1ecdn s\\u1ea3n ph\\u1ea9m tr\\u01b0\\u1edbc khi th\\u00eam s\\u1ea3n ph\\u1ea9m n\\u00e0y v\\u00e0o gi\\u1ecf h\\u00e0ng c\\u1ee7a b\\u1ea1n.\"}"
+        ],
+        [
+          "wpcss_vars",
+          "{\"wc_ajax_url\":\"\\/?wc-ajax=%%endpoint%%\",\"nonce\":\"01ad90e0ab\",\"copied_text\":\"B\\u1ea1n \\u0111\\u00e3 copy  : %s \"}"
+        ],
+        [
+          "wooaa_vars",
+          "{\"wc_ajax_url\":\"\\/?wc-ajax=%%endpoint%%\",\"nonce\":\"e96e3db742\",\"product_types\":\"all\",\"ignore_btn_class\":\".disabled,.wpc-disabled,.wooaa-disabled,.wooco-disabled,.woosb-disabled,.woobt-disabled,.woosg-disabled,.woofs-disabled,.woopq-disabled,.wpcpo-disabled,.wpcbn-btn,.wpcme-btn,.wpcev-btn,.wpcuv-update\",\"ignore_form_data\":\"\",\"cart_url\":\"https:\\/\\/sachtienganhhanoi.com\\/cart\\/\",\"cart_redirect_after_add\":\"no\"}"
+        ],
+        [
+          "vncheckout_array",
+          "{\"admin_ajax\":\"https:\\/\\/sachtienganhhanoi.com\\/wp-admin\\/admin-ajax.php\",\"get_address\":\"https:\\/\\/sachtienganhhanoi.com\\/wp-admin\\/admin-ajax.php\",\"json_address\":\"https:\\/\\/sachtienganhhanoi.com\\/wp-content\\/plugins\\/devvn-woo-address-selectbox\\/vietnam-checkout\\/cities\\/v2.1\\/devvn-vn-address.json\",\"json_address_enable\":\"1\",\"home_url\":\"https:\\/\\/sachtienganhhanoi.com\",\"formatNoMatches\":\"Kh\\u00f4ng c\\u00f3 gi\\u00e1 tr\\u1ecb\",\"phone_error\":\"S\\u1ed1 \\u0111i\\u1ec7n tho\\u1ea1i kh\\u00f4ng \\u0111\\u00fang \\u0111\\u1ecbnh d\\u1ea1ng\",\"loading_text\":\"\\u0110ang t\\u1ea3i...\",\"loadaddress_error\":\"S\\u1ed1 \\u0111i\\u1ec7n tho\\u1ea1i kh\\u00f4ng t\\u1ed3n t\\u1ea1i\",\"enabled_free_shipping\":\"1\",\"has_vtp\":\"\",\"vnaddress_db_version\":\"2.0\",\"placeholder_state_text\":\"Ch\\u1ecdn t\\u1ec9nh\\/th\\u00e0nh ph\\u1ed1\",\"placeholder_city_text\":\"Ch\\u1ecdn ph\\u01b0\\u1eddng\\/x\\u00e3\",\"placeholder_ward_text\":\"Ch\\u1ecdn x\\u00e3\\/ph\\u01b0\\u1eddng\\/th\\u1ecb tr\\u1ea5n\",\"code\":\"WxyJzaYWNodGllbmdhbmhoYW5vaS5jb20iLCJ3d3cuc2FjaHRpZW5nYW5oaGFub2kuY29tIl0=\",\"enable_recaptcha_v3\":\"\",\"enable_recaptcha_v2\":\"\",\"enable_recaptcha_get_address\":\"\",\"enable_recaptcha_create_order\":\"\",\"recaptcha_sitekey_v3\":\"\",\"enable_recaptcha_notice\":\"reCAPTCHA ch\\u01b0a \\u0111\\u01b0\\u1ee3c kh\\u1edfi t\\u1ea1o\",\"recaptcha_confirm\":\"Vui l\\u00f2ng x\\u00e1c nh\\u1eadn reCAPTCHA\",\"phone_get_address_only_vn\":\"\",\"has_ward\":\"\"}"
+        ],
+        [
+          "_wpmejsSettings",
+          "{\"pluginPath\":\"\\/wp-includes\\/js\\/mediaelement\\/\",\"classPrefix\":\"mejs-\",\"stretching\":\"responsive\",\"audioShortcodeLibrary\":\"mediaelement\",\"videoShortcodeLibrary\":\"mediaelement\"}"
+        ],
+        [
+          "zalo_acc",
+          "{\n            \"0853519342\" : \"1fimkppuoo0ws\",\n        }"
+        ]
+      ]
+    },
+    "forms": [
+      {
+        "action": "https://sachtienganhhanoi.com/",
+        "method": "GET",
+        "inputs": [
+          {
+            "name": "s",
+            "type": "search",
+            "value": "",
+            "id": "dgwt-wcas-search-input-1"
+          },
+          {
+            "name": "post_type",
+            "type": "hidden",
+            "value": "product",
+            "id": ""
+          },
+          {
+            "name": "dgwt_wcas",
+            "type": "hidden",
+            "value": "1",
+            "id": ""
+          }
+        ],
+        "has_ajax_class": false
+      },
+      {
+        "action": "https://sachtienganhhanoi.com/",
+        "method": "GET",
+        "inputs": [
+          {
+            "name": "s",
+            "type": "search",
+            "value": "",
+            "id": "dgwt-wcas-search-input-2"
+          },
+          {
+            "name": "post_type",
+            "type": "hidden",
+            "value": "product",
+            "id": ""
+          },
+          {
+            "name": "dgwt_wcas",
+            "type": "hidden",
+            "value": "1",
+            "id": ""
+          }
+        ],
+        "has_ajax_class": false
+      }
+    ],
+    "ajax_elements": [],
+    "page_content_length": 365488
+  },
+  "successful_patterns": [],
+  "nonces": {
+    "general_nonce": "9db36dce66",
+    "ajax_nonce": "9ead1f942a"
+  }
+}

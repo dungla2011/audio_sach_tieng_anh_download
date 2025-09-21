@@ -31,6 +31,16 @@ python 01-ok-auto_downloader.py https://sachtienganhhanoi.com/audio-now-i-know-1
 python 01-ok-auto_downloader.py https://sachtienganhhanoi.com/audio-now-i-know-5-student-book-audio-cd/
 ```
 
+### 4. Khi cookies hết hạn (Empty response)
+```bash
+# 1. Lấy cURL từ Chrome DevTools → Paste vào curl_cmd.txt
+# 2. Chạy cookie extractor:
+python extract_cookies.py
+# 3. Thử lại download
+```
+
+📖 **Chi tiết:** Xem file `QUY_TRINH.md`
+
 ## 📂 Cấu trúc kết quả
 
 ```

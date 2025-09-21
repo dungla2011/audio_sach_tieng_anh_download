@@ -1,0 +1,64 @@
+# Audio Player .htaccess configuration
+
+# Enable rewrite engine
+RewriteEngine On
+
+# Security: Prevent access to sensitive files
+<Files "*.py">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+<Files "*.json">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+<Files "curl_cmd.txt">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Allow audio files to be served
+<FilesMatch "\.(mp3|wav|m4a|flac|ogg|aac)$">
+    Header set Cache-Control "public, max-age=3600"
+    Header set Accept-Ranges "bytes"
+</FilesMatch>
+
+# Main audio player route
+RewriteRule ^$ index.php [L]
+RewriteRule ^player/?$ index.php [L]
+
+# API routes
+RewriteRule ^api/?$ audio_api.php [L]
+RewriteRule ^api/files/?$ audio_api.php [L]
+
+# File serving route  
+RewriteRule ^play/(.+)$ index.php?play=$1 [L,QSA]
+
+# Serve audio files directly from Download directory
+RewriteRule ^Download/(.+\.(mp3|wav|m4a|flac|ogg|aac))$ index.php?play=$1 [L,NC]
+
+# Error pages
+ErrorDocument 404 /404.html
+ErrorDocument 403 /403.html
+
+# MIME types for audio files
+AddType audio/mpeg .mp3
+AddType audio/wav .wav
+AddType audio/mp4 .m4a
+AddType audio/flac .flac
+AddType audio/ogg .ogg
+AddType audio/aac .aac
+
+# Gzip compression for text files
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
