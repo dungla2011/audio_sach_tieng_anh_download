@@ -6,9 +6,16 @@
 # Download bất kỳ trang audio nào
 python 01-ok-auto_downloader.py <URL>
 
+# Download từ JSON file (5879 items)
+python 01-ok-auto_downloader.py file=ALL_AUDIO_ITEMS_5879_items.json
+
+# Download theo thứ tự ngược lại
+python 01-ok-auto_downloader.py <URL> revert
+python 01-ok-auto_downloader.py file=ALL_AUDIO_ITEMS_5879_items.json revert
+
 # Ví dụ:
 python 01-ok-auto_downloader.py https://sachtienganhhanoi.com/audio-now-i-know-1-student-book-audio-cd/
-python 01-ok-auto_downloader.py https://sachtienganhhanoi.com/audio-now-i-know-5-student-book-audio-cd/
+python 01-ok-auto_downloader.py https://sachtienganhhanoi.com/audio-now-i-know-5-student-book-audio-cd/ revert
 ```
 
 ## ❌ Khi gặp lỗi "Empty response"
@@ -35,8 +42,9 @@ python 01-ok-auto_downloader.py https://sachtienganhhanoi.com/audio-now-i-know-5
 ```bash
 python extract_cookies.py
 ```
-- Paste cURL command
-- Script tự động extract và update
+- ✅ **Tự động đọc từ `curl_cmd.txt`** (nếu có)
+- ✅ **Tự động cập nhật script** 
+- Nếu không có file, sẽ yêu cầu paste cURL command
 
 #### Bước 3: Test lại
 ```bash

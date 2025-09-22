@@ -220,12 +220,17 @@ class BrowserSessionDownloader:
         else:
             return f"{size_bytes/(1024*1024):.1f} MB"
     
-    def download_files(self, playlist_data, page_title="Audio_Files"):
+    def download_files(self, playlist_data, page_title="Audio_Files", reverse_order=False):
         """Download all audio files from playlist"""
         files = playlist_data.get('files', [])
         if not files:
             print("❌ No files found in playlist")
             return
+        
+        # Apply reverse order if requested
+        if reverse_order:
+            files = list(reversed(files))
+            print(f"🔄 Files order reversed - downloading from last to first")
         
         # Create download directory in Download folder
         safe_title = self.safe_filename(page_title)
@@ -381,10 +386,12 @@ class BrowserSessionDownloader:
         path = urlparse(audio_page_url).path
         return path.split('/')[-2] if path.endswith('/') else path.split('/')[-1]
     
-    def download_from_url(self, audio_page_url, cookies_dict, ajax_nonce):
+    def download_from_url(self, audio_page_url, cookies_dict, ajax_nonce, reverse_order=False):
         """Complete workflow: set cookies -> extract data -> download files"""
         print("🎯 BROWSER SESSION AUDIO DOWNLOADER")
         print("=" * 50)
+        if reverse_order:
+            print("🔄 Reverse order mode enabled")
         
         # Step 1: Set browser cookies
         self.set_browser_cookies(cookies_dict)
@@ -419,7 +426,7 @@ class BrowserSessionDownloader:
                 module_folder = page_title
             
             # Download files for this module
-            self.download_files(playlist_data, module_folder)
+            self.download_files(playlist_data, module_folder, reverse_order)
         
         return overall_success
 

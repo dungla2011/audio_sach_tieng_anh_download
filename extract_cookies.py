@@ -10,33 +10,57 @@ import json
 
 def extract_cookies_from_curl():
     """
-    Interactive tool to extract cookies from Chrome's "Copy as cURL" command
+    Tool to extract cookies from Chrome's "Copy as cURL" command
+    First tries to read from curl_cmd.txt, then falls back to interactive input
     """
     print("🍪 COOKIE EXTRACTOR FOR sachtienganhhanoi.com")
     print("=" * 60)
     print()
-    print("📋 Instructions:")
-    print("1. Login to sachtienganhhanoi.com in Chrome")
-    print("2. Go to any audio page (e.g., Now I Know 2)")
-    print("3. Open DevTools (F12) → Network tab")
-    print("4. Look for 'admin-ajax.php' request")
-    print("5. Right-click → Copy → Copy as cURL")
-    print("6. Paste the cURL command below")
-    print()
-    print("⚠️  Note: Paste the ENTIRE cURL command (may be very long)")
-    print()
     
-    # Get cURL command from user
-    print("📝 Paste your cURL command here:")
-    print("(Press Enter twice when done)")
-    curl_lines = []
-    while True:
-        line = input()
-        if line.strip() == "" and curl_lines:
-            break
-        curl_lines.append(line)
+    curl_command = None
     
-    curl_command = " ".join(curl_lines)
+    # Try to read from curl_cmd.txt file first
+    try:
+        with open('curl_cmd.txt', 'r', encoding='utf-8') as f:
+            curl_command = f.read().strip()
+        
+        if curl_command and 'curl' in curl_command.lower():
+            print("✅ Found cURL command in curl_cmd.txt file")
+            print(f"📄 Command length: {len(curl_command)} characters")
+        else:
+            curl_command = None
+            print("⚠️  curl_cmd.txt exists but doesn't contain valid cURL command")
+    except FileNotFoundError:
+        print("📁 curl_cmd.txt file not found")
+    except Exception as e:
+        print(f"❌ Error reading curl_cmd.txt: {e}")
+    
+    # If no valid command from file, get from user input
+    if not curl_command:
+        print()
+        print("📋 Instructions:")
+        print("1. Login to sachtienganhhanoi.com in Chrome")
+        print("2. Go to any audio page (e.g., Now I Know 2)")
+        print("3. Open DevTools (F12) → Network tab")
+        print("4. Look for 'admin-ajax.php' request")
+        print("5. Right-click → Copy → Copy as cURL")
+        print("6. Paste the cURL command below")
+        print()
+        print("⚠️  Note: Paste the ENTIRE cURL command (may be very long)")
+        print("💡 Tip: You can also save the cURL to curl_cmd.txt file")
+        print()
+        
+        # Get cURL command from user
+        print("📝 Paste your cURL command here:")
+        print("(Press Enter twice when done)")
+        curl_lines = []
+        while True:
+            line = input()
+            if line.strip() == "" and curl_lines:
+                break
+            curl_lines.append(line)
+        
+        curl_command = " ".join(curl_lines)
     
     if not curl_command.strip():
         print("❌ No cURL command provided!")
@@ -45,12 +69,25 @@ def extract_cookies_from_curl():
     print()
     print("🔍 Analyzing cURL command...")
     
-    # Extract cookies
+    # Clean up Windows batch format (remove ^ escape characters)
+    curl_command = curl_command.replace('^"', '"').replace('^&', '&').replace('^\\^', '^')
+    
+    # Extract cookies from both formats
     cookies = {}
+    
+    # Format 1: -H "cookie: ..." 
     cookie_matches = re.findall(r'-H [\'"]cookie: ([^\'"]+)[\'"]', curl_command)
+    
+    # Format 2: -b "cookie_string" (Windows format)
+    if not cookie_matches:
+        cookie_matches = re.findall(r'-b [\'"]([^\'"]+)[\'"]', curl_command)
     
     if cookie_matches:
         cookie_string = cookie_matches[0]
+        # Handle URL encoded cookies
+        import urllib.parse
+        cookie_string = urllib.parse.unquote(cookie_string)
+        
         # Split cookies
         for cookie_pair in cookie_string.split(';'):
             if '=' in cookie_pair:
@@ -62,6 +99,9 @@ def extract_cookies_from_curl():
     data_matches = re.findall(r'--data-raw [\'"]([^\'"]+)[\'"]', curl_command)
     if data_matches:
         data_string = data_matches[0]
+        # Handle URL encoded data
+        import urllib.parse
+        data_string = urllib.parse.unquote(data_string)
         nonce_match = re.search(r'_ajax_nonce=([a-f0-9]+)', data_string)
         if nonce_match:
             nonce = nonce_match.group(1)
@@ -132,19 +172,21 @@ def update_auto_downloader_script(extracted_data):
         with open(script_path, 'r', encoding='utf-8') as f:
             script_content = f.read()
         
-        # Update cookies
+        # Update cookies (with Windows batch URL decoding)
         new_cookies = {}
         for name, value in extracted_data['cookies'].items():
             if name.startswith(('wordpress_', 'WPCP_', 'cf_clearance')):
-                new_cookies[name] = value
+                # Decode Windows batch URL encoding (^%^ format)
+                decoded_value = value.replace('^%^', '%')
+                new_cookies[name] = decoded_value
         
-        cookies_code = "    cookies_dict = {\n"
+        cookies_code = "cookies_dict = {\n"
         for name, value in new_cookies.items():
             cookies_code += f"        '{name}': '{value}',\n"
         cookies_code += "    }"
         
-        # Replace cookies section
-        cookies_pattern = r'cookies_dict = \{[^}]+\}'
+        # Replace cookies section (multiline support)
+        cookies_pattern = r'cookies_dict = \{.*?\}'
         script_content = re.sub(cookies_pattern, cookies_code.strip(), script_content, flags=re.DOTALL)
         
         # Replace nonce
