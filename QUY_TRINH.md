@@ -16,6 +16,10 @@ python 01-ok-auto_downloader.py file=ALL_AUDIO_ITEMS_5879_items.json revert
 # Ví dụ:
 python 01-ok-auto_downloader.py https://sachtienganhhanoi.com/audio-now-i-know-1-student-book-audio-cd/
 python 01-ok-auto_downloader.py https://sachtienganhhanoi.com/audio-now-i-know-5-student-book-audio-cd/ revert
+
+# Script tự động load cookies từ curl_cmd.txt (nếu có):
+# 🔄 Auto-loaded cookies from curl_cmd.txt
+# ✅ Perfect! Found audio download nonce
 ```
 
 ## ❌ Khi gặp lỗi "Empty response"
@@ -27,24 +31,30 @@ python 01-ok-auto_downloader.py https://sachtienganhhanoi.com/audio-now-i-know-5
 ❌ Failed to get playlist data
 ```
 
-### Giải pháp: Lấy cookies mới
+### Script tự cảnh báo nonce sai:
+```
+⚠️  Warning: Nonce is for 'ptp_load_posts', not 'shareonedrive-get-playlist'
+   You need to capture audio play request, not page load request
+```
 
-#### Bước 1: Lấy cURL từ Chrome
+### Giải pháp: Lấy cURL từ audio play request
+
+#### Bước 1: Lấy cURL đúng từ Chrome
 1. **Login** vào https://sachtienganhhanoi.com
 2. **Vào trang audio** bất kỳ
 3. **Mở DevTools** (F12) → **Network tab**
-4. **Reload trang**
-5. **Tìm request `admin-ajax.php`** (action=shareonedrive-get-playlist)
-6. **Right-click** → **Copy as cURL**
+4. **⚠️ QUAN TRỌNG: PLAY 1 file audio** (click nút play!)
+5. **Tìm request `admin-ajax.php`** với `action=shareonedrive-get-playlist`
+6. **Right-click** → **Copy as cURL (cmd)** (Windows format)
 7. **Paste vào file `curl_cmd.txt`**
 
-#### Bước 2: Extract cookies tự động
-```bash
-python extract_cookies.py
-```
-- ✅ **Tự động đọc từ `curl_cmd.txt`** (nếu có)
-- ✅ **Tự động cập nhật script** 
-- Nếu không có file, sẽ yêu cầu paste cURL command
+**⚠️ Lưu ý:** Phải copy cURL **khi play audio**, không phải khi load trang!
+
+#### Bước 2: Script tự động load cookies
+- ✅ **Tự động đọc từ `curl_cmd.txt`**
+- ✅ **Tự động decode Windows format** (`^%^` → `%`)
+- ✅ **Tự động cảnh báo nếu action sai**
+- ❌ **Không cần `extract_cookies.py` nữa!**
 
 #### Bước 3: Test lại
 ```bash
@@ -76,10 +86,10 @@ python 01-ok-auto_downloader.py <URL>
 
 | File | Chức năng |
 |------|-----------|
-| `01-ok-auto_downloader.py` | **Script chính** - Chạy file này |
-| `extract_cookies.py` | **Lấy cookies mới** - Chạy khi hết hạn |
-| `curl_cmd.txt` | **Lưu cURL** - Paste cURL vào đây |
+| `01-ok-auto_downloader.py` | **Script chính** - Chạy file này (tự load cookies) |
+| `curl_cmd.txt` | **Lưu cURL** - Paste cURL audio play request vào đây |
 | `browser_session_downloader.py` | **Core engine** - Không cần chạm |
+| ~~`extract_cookies.py`~~ | ~~Không cần nữa~~ - Script tự load cookies |
 
 ## ⏰ Lưu ý
 
@@ -90,11 +100,10 @@ python 01-ok-auto_downloader.py <URL>
 ## 🎯 Quy trình tóm tắt
 
 1. **Chạy:** `python 01-ok-auto_downloader.py <URL>`
-2. **Nếu lỗi:** Lấy cURL → `python extract_cookies.py` → Thử lại
+2. **Nếu lỗi:** Lấy cURL từ **audio play request** → Paste vào `curl_cmd.txt` → Thử lại
 3. **Thành công:** Files tự động tải về và được tổ chức theo CD!
 
 ---
 
-**💡 Ghi nhớ:** Chỉ cần nhớ 2 lệnh chính:
-- `python 01-ok-auto_downloader.py <URL>` (dùng hàng ngày)
-- `python extract_cookies.py` (dùng khi hết cookies)
+**💡 Ghi nhớ:** Chỉ cần nhớ 1 lệnh chính:
+- `python 01-ok-auto_downloader.py <URL>` (tự động load cookies từ curl_cmd.txt)
