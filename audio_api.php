@@ -11,7 +11,7 @@ header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
 // Configuration
-$downloadDir = __DIR__ . '/Download';
+$downloadDir = 'g:/Download_TiengAnhAudio';
 $allowedExtensions = ['mp3', 'wav', 'm4a', 'flac', 'ogg', 'aac'];
 $maxDepth = 3; // Maximum directory depth to scan
 

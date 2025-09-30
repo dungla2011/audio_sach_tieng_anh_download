@@ -234,7 +234,7 @@ class BrowserSessionDownloader:
         
         # Create download directory in Download folder
         safe_title = self.safe_filename(page_title)
-        base_download_dir = "Download"
+        base_download_dir = "G:/Download_TiengAnhAudio"
         download_dir = os.path.join(base_download_dir, safe_title)
         os.makedirs(download_dir, exist_ok=True)
         print(f"📁 Created directory: {download_dir}")
@@ -291,47 +291,64 @@ class BrowserSessionDownloader:
             for variant_num, url in enumerate(url_variants, 1):
                 print(f"          Trying URL variant {variant_num}...")
                 
-                try:
-                    start_time = time.time()
-                    response = self.session.get(url, stream=True, timeout=30)
-                    
-                    # Check content type
-                    content_type = response.headers.get('content-type', '').lower()
-                    if 'application/json' in content_type or 'text/html' in content_type:
-                        print(f"          ⚪ Got {content_type}, not file content")
-                        continue
-                    
-                    # Download file
-                    file_path = os.path.join(download_dir, f"{safe_name}.mp3")
-                    with open(file_path, 'wb') as f:
-                        for chunk in response.iter_content(chunk_size=8192):
-                            if chunk:
-                                f.write(chunk)
-                    
-                    end_time = time.time()
-                    download_time = end_time - start_time
-                    actual_size = os.path.getsize(file_path)
-                    
-                    if actual_size > 0:
-                        speed = actual_size / download_time / (1024*1024)  # MB/s
-                        print(f"          ✅ Downloaded {actual_size:,} bytes in {download_time:.1f}s ({speed:.1f} MB/s)")
+                # Retry mechanism: try each URL variant up to 3 times
+                max_retries = 3
+                for retry_count in range(max_retries):
+                    try:
+                        if retry_count > 0:
+                            print(f"          🔄 Retry {retry_count}/3 after 30s wait...")
+                            time.sleep(30)  # Wait 30 seconds before retry
                         
-                        # Verify file size
-                        if file_size > 0:
-                            if actual_size == file_size:
-                                print(f"          ✅ Size match perfect!")
-                            else:
-                                print(f"          ⚠️  Size mismatch: expected {file_size:,}, got {actual_size:,}")
+                        start_time = time.time()
+                        response = self.session.get(url, stream=True, timeout=30)
                         
-                        successful_downloads += 1
-                        downloaded = True
-                        break
-                    else:
-                        print(f"          ❌ Downloaded file is empty")
-                        os.remove(file_path)
+                        # Check content type
+                        content_type = response.headers.get('content-type', '').lower()
+                        if 'application/json' in content_type or 'text/html' in content_type:
+                            print(f"          ⚪ Got {content_type}, not file content")
+                            break  # Don't retry for wrong content type
+                        
+                        # Download file
+                        file_path = os.path.join(download_dir, f"{safe_name}.mp3")
+                        with open(file_path, 'wb') as f:
+                            for chunk in response.iter_content(chunk_size=8192):
+                                if chunk:
+                                    f.write(chunk)
+                        
+                        end_time = time.time()
+                        download_time = end_time - start_time
+                        actual_size = os.path.getsize(file_path)
+                        
+                        if actual_size > 0:
+                            speed = actual_size / download_time / (1024*1024)  # MB/s
+                            retry_info = f" (retry {retry_count + 1})" if retry_count > 0 else ""
+                            print(f"          ✅ Downloaded {actual_size:,} bytes in {download_time:.1f}s ({speed:.1f} MB/s){retry_info}")
+                            
+                            # Verify file size
+                            if file_size > 0:
+                                if actual_size == file_size:
+                                    print(f"          ✅ Size match perfect!")
+                                else:
+                                    print(f"          ⚠️  Size mismatch: expected {file_size:,}, got {actual_size:,}")
+                            
+                            successful_downloads += 1
+                            downloaded = True
+                            break  # Success, exit retry loop
+                        else:
+                            print(f"          ❌ Downloaded file is empty")
+                            if os.path.exists(file_path):
+                                os.remove(file_path)
+                    
+                    except Exception as e:
+                        error_msg = str(e)
+                        if retry_count < max_retries - 1:
+                            print(f"          ⚠️  Error (will retry): {error_msg}")
+                        else:
+                            print(f"          ❌ Final error after {max_retries} attempts: {error_msg}")
                 
-                except Exception as e:
-                    print(f"          ❌ Error: {str(e)}")
+                # If downloaded successfully, break out of URL variant loop
+                if downloaded:
+                    break
             
             if not downloaded:
                 print(f"          ❌ Failed to download after trying all variants")

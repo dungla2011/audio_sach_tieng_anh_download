@@ -271,7 +271,10 @@ class UniversalAudioDownloader:
             download_url = file_info.get('downloadUrl', '')
             file_size = file_info.get('size', 0)
             
-            print(f"{i:3d}/{len(files)} 📥 Downloading: {safe_name}")
+            #Thêm timestamp date time vào đây:
+            from datetime import datetime
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            print(f"{i:3d}/{len(files)} 📥 Downloading: {safe_name} at {timestamp}")
             print(f"          Size: {file_size:,} bytes ({self.format_size(file_size)})")
             
             if not download_url:

@@ -79,28 +79,56 @@ def main():
     if len(sys.argv) < 2:
         print("❌ Error: No input provided")
         print("\nUsage:")
-        print(f"    python {os.path.basename(__file__)} <audio_page_url> [revert]")
-        print(f"    python {os.path.basename(__file__)} file=<json_filename> [revert]")
+        print(f"    python {os.path.basename(__file__)} <URL_or_file> [options...]")
         print("\nExamples:")
         print("    python auto_downloader.py https://sachtienganhhanoi.com/audio-now-i-know-5-student-book-audio-cd/")
         print("    python auto_downloader.py file=ALL_AUDIO_ITEMS_5879_items.json")
-        print("    python auto_downloader.py file=ALL_AUDIO_ITEMS_5879_items.json revert")
-        print("\nOptions:")
-        print("    revert    Download files in reverse order")
+        print("    python auto_downloader.py file=ALL.json revert")
+        print("    python auto_downloader.py file=ALL.json skip=2000")
+        print("    python auto_downloader.py revert skip=1000 file=ALL.json")
+        print("    python auto_downloader.py skip=500 file=ALL.json revert")
+        print("\nOptions (can be in any order):")
+        print("    revert      Download files in reverse order")
+        print("    skip=N      Skip first N items (useful for resuming)")
         sys.exit(1)
     
-    # Parse arguments
+    # Parse arguments flexibly
     arguments = sys.argv[1:]
-    main_argument = arguments[0]
-    reverse_order = 'revert' in arguments
     
+    # Find main argument (URL or file=)
+    main_argument = None
+    reverse_order = False
+    skip_count = 0
+    
+    for arg in arguments:
+        if arg.startswith('https://') or arg.startswith('file='):
+            main_argument = arg
+        elif arg == 'revert':
+            reverse_order = True
+        elif arg.startswith('skip='):
+            try:
+                skip_count = int(arg[5:])  # Remove 'skip=' prefix (5 chars)
+            except ValueError:
+                print(f"❌ Error: Invalid skip value. Must be a number. Got: {arg}")
+                sys.exit(1)
+        else:
+            print(f"❌ Error: Unknown argument: {arg}")
+            sys.exit(1)
+    
+    if not main_argument:
+        print("❌ Error: No URL or file specified")
+        sys.exit(1)
+    
+    # Show parsed options
+    if skip_count > 0:
+        print(f"🚀 Skip mode enabled - skip first {skip_count} items")
     if reverse_order:
         print("🔄 Reverse order mode enabled - downloading from last to first")
     
     # Check if it's a file parameter
     if main_argument.startswith('file='):
         json_filename = main_argument[5:]  # Remove 'file=' prefix
-        process_json_file(json_filename, reverse_order)
+        process_json_file(json_filename, reverse_order, skip_count)
     else:
         # Single URL mode
         audio_url = main_argument
@@ -113,7 +141,7 @@ def main():
         
         process_single_url(audio_url, reverse_order)
 
-def process_json_file(json_filename, reverse_order=False):
+def process_json_file(json_filename, reverse_order=False, skip_count=0):
     """Process all URLs from JSON file"""
     import json
     import time
@@ -151,6 +179,14 @@ def process_json_file(json_filename, reverse_order=False):
         print("❌ No audio items found in JSON file")
         sys.exit(1)
     
+    # Apply skip count if specified
+    if skip_count > 0:
+        if skip_count >= len(audio_items):
+            print(f"❌ Error: skip count ({skip_count}) is >= total items ({len(audio_items)})")
+            sys.exit(1)
+        audio_items = audio_items[skip_count:]
+        print(f"⏭️  Skipped first {skip_count} items, {len(audio_items)} remaining")
+    
     # Apply reverse order if requested
     if reverse_order:
         audio_items = list(reversed(audio_items))
@@ -158,10 +194,11 @@ def process_json_file(json_filename, reverse_order=False):
     
     # Confirm before starting bulk download
     order_text = " (in reverse order)" if reverse_order else ""
-    response = input(f"\n⚠️  Ready to download {len(audio_items)} audio items{order_text}. Continue? (y/N): ")
-    if response.lower() not in ['y', 'yes']:
-        print("❌ Download cancelled by user")
-        sys.exit(0)
+    skip_text = f" (skipping first {skip_count})" if skip_count > 0 else ""
+    # response = input(f"\n⚠️  Ready to download {len(audio_items)} audio items{order_text}{skip_text}. Continue? (y/N): ")
+    # if response.lower() not in ['y', 'yes']:
+    #     print("❌ Download cancelled by user")
+    #     sys.exit(0)
     
     # Process each URL
     successful = 0
@@ -175,7 +212,11 @@ def process_json_file(json_filename, reverse_order=False):
         url = item.get('url')
         title = item.get('title', 'Unknown')
         
-        print(f"\n[{i}/{len(audio_items)}] Processing: {title[:60]}...")
+        # Calculate actual position (taking skip_count into account)
+        actual_position = i + skip_count
+        total_original = len(audio_items) + skip_count
+        
+        print(f"\n[{actual_position}/{total_original}] Processing: {title[:60]}...")
         print(f"URL: {url}")
         
         try:
