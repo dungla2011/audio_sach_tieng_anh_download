@@ -94,12 +94,13 @@ def main():
     
     # Parse arguments flexibly
     arguments = sys.argv[1:]
-    
+
     # Find main argument (URL or file=)
     main_argument = None
     reverse_order = False
     skip_count = 0
-    
+    text_filter = None
+
     for arg in arguments:
         if arg.startswith('https://') or arg.startswith('file='):
             main_argument = arg
@@ -111,10 +112,12 @@ def main():
             except ValueError:
                 print(f"❌ Error: Invalid skip value. Must be a number. Got: {arg}")
                 sys.exit(1)
+        elif arg.startswith('text='):
+            text_filter = arg[5:].strip('"')
         else:
             print(f"❌ Error: Unknown argument: {arg}")
             sys.exit(1)
-    
+
     if not main_argument:
         print("❌ Error: No URL or file specified")
         sys.exit(1)
@@ -124,37 +127,41 @@ def main():
         print(f"🚀 Skip mode enabled - skip first {skip_count} items")
     if reverse_order:
         print("🔄 Reverse order mode enabled - downloading from last to first")
-    
+    if text_filter:
+        print(f"🔍 Text filter enabled: '{text_filter}'")
+
     # Check if it's a file parameter
     if main_argument.startswith('file='):
         json_filename = main_argument[5:]  # Remove 'file=' prefix
-        process_json_file(json_filename, reverse_order, skip_count)
+        process_json_file(json_filename, reverse_order, skip_count, text_filter)
     else:
         # Single URL mode
         audio_url = main_argument
-        
+
         # Validate URL
         if not audio_url.startswith('https://sachtienganhhanoi.com/'):
             print(f"❌ Error: Invalid URL. Must start with 'https://sachtienganhhanoi.com/'")
             print(f"   Provided: {audio_url}")
             sys.exit(1)
-        
+
         process_single_url(audio_url, reverse_order)
 
-def process_json_file(json_filename, reverse_order=False, skip_count=0):
-    """Process all URLs from JSON file"""
+def process_json_file(json_filename, reverse_order=False, skip_count=0, text_filter=None):
+    """Process all URLs from JSON file, with optional text filter"""
     import json
     import time
-    
+
     print(f"📄 Processing JSON file: {json_filename}")
     if reverse_order:
         print("🔄 Will process items in reverse order")
-    
+    if text_filter:
+        print(f"🔍 Will filter items by text: '{text_filter}'")
+
     # Check if file exists
     if not os.path.exists(json_filename):
         print(f"❌ Error: File '{json_filename}' not found")
         sys.exit(1)
-    
+
     # Load JSON data
     try:
         with open(json_filename, 'r', encoding='utf-8') as f:
@@ -163,22 +170,32 @@ def process_json_file(json_filename, reverse_order=False, skip_count=0):
     except Exception as e:
         print(f"❌ Error reading JSON file: {e}")
         sys.exit(1)
-    
+
     # Filter audio items (items with URLs that contain 'audio' or have '[AUDIO]' in title)
     audio_items = []
     for item in data:
         url = item.get('url', '')
         title = item.get('title', '')
-        
+
         if url and ('audio' in url.lower() or '[audio]' in title.lower()):
             audio_items.append(item)
-    
-    print(f"🎵 Found {len(audio_items)} audio items to download")
-    
+
+    print(f"🎵 Found {len(audio_items)} audio items to download (before text filter)")
+
+    # Apply text filter if specified
+    if text_filter:
+        keywords = [w.strip().lower() for w in text_filter.split() if w.strip()]
+        def title_matches(title):
+            t = title.lower()
+            return all(word in t for word in keywords)
+        filtered_items = [item for item in audio_items if title_matches(item.get('title', ''))]
+        print(f"🔍 {len(filtered_items)} items match all keywords: {keywords}")
+        audio_items = filtered_items
+
     if not audio_items:
-        print("❌ No audio items found in JSON file")
+        print("❌ No audio items found in JSON file (after filtering)")
         sys.exit(1)
-    
+
     # Apply skip count if specified
     if skip_count > 0:
         if skip_count >= len(audio_items):
@@ -186,12 +203,12 @@ def process_json_file(json_filename, reverse_order=False, skip_count=0):
             sys.exit(1)
         audio_items = audio_items[skip_count:]
         print(f"⏭️  Skipped first {skip_count} items, {len(audio_items)} remaining")
-    
+
     # Apply reverse order if requested
     if reverse_order:
         audio_items = list(reversed(audio_items))
         print("🔄 Audio items order reversed")
-    
+
     # Confirm before starting bulk download
     order_text = " (in reverse order)" if reverse_order else ""
     skip_text = f" (skipping first {skip_count})" if skip_count > 0 else ""
@@ -199,26 +216,26 @@ def process_json_file(json_filename, reverse_order=False, skip_count=0):
     # if response.lower() not in ['y', 'yes']:
     #     print("❌ Download cancelled by user")
     #     sys.exit(0)
-    
+
     # Process each URL
     successful = 0
     failed = 0
     start_time = time.time()
-    
+
     print(f"\n🚀 Starting bulk download of {len(audio_items)} items...")
     print("=" * 60)
-    
+
     for i, item in enumerate(audio_items, 1):
         url = item.get('url')
         title = item.get('title', 'Unknown')
-        
+
         # Calculate actual position (taking skip_count into account)
         actual_position = i + skip_count
         total_original = len(audio_items) + skip_count
-        
+
         print(f"\n[{actual_position}/{total_original}] Processing: {title[:60]}...")
         print(f"URL: {url}")
-        
+
         try:
             success = process_single_url(url, reverse_order, show_header=False)
             if success:
@@ -230,12 +247,12 @@ def process_json_file(json_filename, reverse_order=False, skip_count=0):
         except Exception as e:
             failed += 1
             print(f"❌ Error: {e}")
-        
+
         # Add delay between downloads to be respectful
         if i < len(audio_items):  # Don't delay after last item
             print("⏳ Waiting 2 seconds...")
             time.sleep(2)
-    
+
     # Final summary
     elapsed = time.time() - start_time
     print(f"\n" + "=" * 60)

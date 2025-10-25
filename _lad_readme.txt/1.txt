@@ -1,0 +1,7 @@
+python 01-ok-auto_downloader.py file=ALL.json
+
+file=ALL.json - Download tất cả từ file JSON
+revert - Download theo thứ tự ngược
+skip=N - Bỏ qua N item đầu tiên
+text="từ khóa" - Chỉ download các item có tiêu đề chứa tất cả từ khóa
+
