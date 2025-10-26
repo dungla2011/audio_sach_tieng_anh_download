@@ -27,6 +27,21 @@ from urllib.parse import unquote, urlparse
 import time
 import sys
 
+# Override built-in print in this module to prefix a timestamp (Y-m-d H:i:s)
+import datetime as _datetime
+import builtins as _builtins
+_orig_print = _builtins.print
+def print(*args, **kwargs):
+    """Module-local print replacement that prefixes a timestamp to each line."""
+    sep = kwargs.pop('sep', ' ')
+    end = kwargs.pop('end', '\n')
+    try:
+        ts = _datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        message = sep.join(str(a) for a in args)
+        _orig_print(f"{ts} {message}", end=end)
+    except Exception:
+        # Fallback to original print if anything goes wrong
+        _orig_print(*args, sep=sep, end=end, **kwargs)
 class BrowserSessionDownloader:
     def __init__(self):
         self.session = requests.Session()
@@ -167,6 +182,15 @@ class BrowserSessionDownloader:
                             if clean_name.startswith(('SP1_', 'SP2_', 'SP3_')):
                                 display_name = clean_name[4:]  # Remove "SP2_" prefix for display
                             
+                            # Determine file extension from type
+                            file_type = file_info.get('type', '')
+                            if 'video/mp4' in file_type:
+                                extension = '.mp4'
+                            elif 'audio/mpeg' in file_type or 'audio/' in file_type:
+                                extension = '.mp3'
+                            else:
+                                extension = '.mp3'  # default fallback
+                            
                             files.append({
                                 'name': display_name,
                                 'original_name': clean_name,  # Keep original for filename
@@ -175,7 +199,8 @@ class BrowserSessionDownloader:
                                 'id': file_info.get('id', ''),
                                 'poster': file_info.get('poster', ''),
                                 'source': file_info.get('source', ''),
-                                'type': file_info.get('type', '')
+                                'type': file_type,
+                                'extension': extension
                             })
                 
                 if audio_file_count > 0:
@@ -252,9 +277,10 @@ class BrowserSessionDownloader:
             safe_name = self.safe_filename(filename)
             download_url = file_info.get('downloadUrl', '')
             file_size = file_info.get('size', 0)
+            file_extension = file_info.get('extension', '.mp3')  # Get extension from file_info
             
             # Check if file already exists
-            file_path = os.path.join(download_dir, f"{safe_name}.mp3")
+            file_path = os.path.join(download_dir, f"{safe_name}{file_extension}")
             if os.path.exists(file_path):
                 existing_size = os.path.getsize(file_path)
                 print(f"{i:3d}/{len(files)} ⏭️  Skipping: {display_name}")
@@ -309,7 +335,7 @@ class BrowserSessionDownloader:
                             break  # Don't retry for wrong content type
                         
                         # Download file
-                        file_path = os.path.join(download_dir, f"{safe_name}.mp3")
+                        file_path = os.path.join(download_dir, f"{safe_name}{file_extension}")
                         with open(file_path, 'wb') as f:
                             for chunk in response.iter_content(chunk_size=8192):
                                 if chunk:

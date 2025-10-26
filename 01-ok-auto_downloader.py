@@ -21,6 +21,22 @@ import os
 import re
 from browser_session_downloader import BrowserSessionDownloader
 
+# Override built-in print in this module to prefix a timestamp (Y-m-d H:i:s)
+import datetime as _datetime
+import builtins as _builtins
+_orig_print = _builtins.print
+def print(*args, **kwargs):
+    """Module-local print replacement that prefixes a timestamp to each line."""
+    sep = kwargs.pop('sep', ' ')
+    end = kwargs.pop('end', '\n')
+    try:
+        ts = _datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        message = sep.join(str(a) for a in args)
+        _orig_print(f"{ts} {message}", end=end)
+    except Exception:
+        # Fallback to original print if anything goes wrong
+        _orig_print(*args, sep=sep, end=end, **kwargs)
+
 def load_cookies_from_curl():
     """Auto-load cookies and nonce from curl_cmd.txt (supports both Windows CMD and Bash formats)"""
     try:
