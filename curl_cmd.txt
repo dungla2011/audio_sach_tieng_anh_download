@@ -1,19 +1,19 @@
-curl ^"https://sachtienganhhanoi.com/wp-admin/admin-ajax.php^" ^
-  -H ^"accept: application/json, text/javascript, */*; q=0.01^" ^
-  -H ^"accept-language: en-US,en;q=0.9,vi-VN;q=0.8,vi;q=0.7^" ^
-  -H ^"cache-control: no-cache^" ^
-  -H ^"content-type: application/x-www-form-urlencoded; charset=UTF-8^" ^
-  -b ^"wordpress_sec_5a61016ccd1690fb96ec8b28ebc99c52=dungla2011^%^7C1762692647^%^7Chq66tlfCMZHc1xftgkElxvsxQA2qrMdILv1z8neYKd5^%^7C2be5b92a174d2e6e9b5c506bea46a07b919680b584c19c9329e07572421aade7; SITE_TOTAL_ID=3064472be76e366ab5be82f7db84e508; WPCP_UUID=c9a01926-1420-4334-8ecb-05471c14a9d0; cf_clearance=YO.2ekK53fsahjSs5qkW.uYkqr_DYSLuMkYeZQoRltw-1761483014-1.2.1.1-csWTow971qoxBpeN78PMUz_1j.GKlC6cZVQSqXg8YT30CyvJh1XNgZfkgoZ84wy.4b3sAskRIQ7r.u7TOrbzEg697cVmy1iQiYjmvBYkIoDSsrP4gQl1nW8Y5mdcikYwW4GNFKoZTyovOxXZXyqWbtfAOxQ55quz4KywjWOyHRy1jwA5AMmaUmTl5Es2I7yo1Ue2j1DH60lMbhy_g7k8xhmUaxHXEq.dSWqRrE4684I; wordpress_logged_in_5a61016ccd1690fb96ec8b28ebc99c52=dungla2011^%^7C1762692647^%^7Chq66tlfCMZHc1xftgkElxvsxQA2qrMdILv1z8neYKd5^%^7C0cb4be3a0be67ae95398ace4867deff7bda30224d2dbf463d111707034c1c482^" ^
-  -H ^"origin: https://sachtienganhhanoi.com^" ^
-  -H ^"pragma: no-cache^" ^
-  -H ^"priority: u=1, i^" ^
-  -H ^"referer: https://sachtienganhhanoi.com/audio-now-i-know-1-student-book-audio-cd/^" ^
-  -H ^"sec-ch-ua: ^\^"Google Chrome^\^";v=^\^"141^\^", ^\^"Not?A_Brand^\^";v=^\^"8^\^", ^\^"Chromium^\^";v=^\^"141^\^"^" ^
-  -H ^"sec-ch-ua-mobile: ?0^" ^
-  -H ^"sec-ch-ua-platform: ^\^"Windows^\^"^" ^
-  -H ^"sec-fetch-dest: empty^" ^
-  -H ^"sec-fetch-mode: cors^" ^
-  -H ^"sec-fetch-site: same-origin^" ^
-  -H ^"user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36^" ^
-  -H ^"x-requested-with: XMLHttpRequest^" ^
-  --data-raw ^"action=shareonedrive-get-playlist^&account_id=f0e9cfd79dbff848^&drive_id=drive^&lastFolder=^&sort=name^%^3Aasc^&listtoken=eaa6a8edf0334f50efaf409249f63a61^&page_url=https^%^3A^%^2F^%^2Fsachtienganhhanoi.com^%^2Faudio-now-i-know-1-student-book-audio-cd^%^2F^&_ajax_nonce=5658cf110e^"
+curl --url 'https://sachtienganhhanoi.com/wp-admin/admin-ajax.php' \
+  -H 'accept: application/json, text/javascript, */*; q=0.01' \
+  -H 'accept-language: vi,en-US;q=0.9,en;q=0.8,sq;q=0.7' \
+  -H 'cache-control: no-cache' \
+  -H 'content-type: application/x-www-form-urlencoded; charset=UTF-8' \
+  -b 'wordpress_sec_5a61016ccd1690fb96ec8b28ebc99c52=dungla2011%7C1786495834%7CvRkJhBQGoJbAzPgPbfcjyXmbHFk0gYnIIX4bDYVc0zi%7Cea7642e87a8bff1e92d69d8b356ca44b03546092b88eee7e7168497c0b182d6d; wordpress_test_cookie=WP%20Cookie%20check; wp_lang=vi; wordpress_logged_in_5a61016ccd1690fb96ec8b28ebc99c52=dungla2011%7C1786495834%7CvRkJhBQGoJbAzPgPbfcjyXmbHFk0gYnIIX4bDYVc0zi%7C91841b3fe3c0ee17a2ea8e4958cc8652e7f1c1a2354ca946a50d01f203e30bbc; WPCP_UUID=5814a080-180e-4407-988f-772fde8efb91; _secure_session=fcb528449a844d6a946e1ca1864f993a.e86b9e6d5fb14549c196a4f9eb207ea9b55bbd53f2344ef807052b6d13bbf3f2; cf_clearance=I1yb.cdhrxmT5oP7f4yB_CxFhoW3AkaU5GfXwZ6nSpw-1786324359-1.2.1.1-w27MOhtQbu56T7mEO8mEd01nEf4RuhBGL1dwsd_8HXGHaxImJZUf5zZGJmnBG9xzpCCNxdgjv7qZ5EcoAEm35d1hvTszK8IE_LwYJPMmb_yTjS9TORPtINXRcDmxUMpsqcmjpsYUMYC56vCX8FXGCPP3TbW7WUH1CY5x_.UoqHlqFpO0Rlp7Y2M4CUIPF6aLkmd_nkvdOEtKg3LFXECE1c8eUwyimSTxB4y_GRjQAbKaL7gZjxy9B_qGVTD81bESo3._9Psh0AvExjQ1QpXMTXMEN3JXEc.gMM9clYLtrEA8oMwdKKwI7KhFrSfe1LIcjkrea4jTouHQv7HFgJbxyAeevuMbihNT833r0PRaPvg' \
+  -H 'origin: https://sachtienganhhanoi.com' \
+  -H 'pragma: no-cache' \
+  -H 'priority: u=1, i' \
+  -H 'referer: https://sachtienganhhanoi.com/audio-cambridge-messages-2-class-cds/' \
+  -H 'sec-ch-ua: "Not=A?Brand";v="99", "Google Chrome";v="151", "Chromium";v="151"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Windows"' \
+  -H 'sec-fetch-dest: empty' \
+  -H 'sec-fetch-mode: cors' \
+  -H 'sec-fetch-site: same-origin' \
+  -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36' \
+  -H 'x-requested-with: XMLHttpRequest' \
+  --data-raw 'action=shareonedrive-get-playlist&account_id=f0e9cfd79dbff848&drive_id=drive&lastFolder=&sort=name%3Aasc&listtoken=06bead8497c3ccb8e544c5ec3ea5b794&page_url=https%3A%2F%2Fsachtienganhhanoi.com%2Faudio-cambridge-messages-2-class-cds%2F&_ajax_nonce=434863ee00'

@@ -13,6 +13,8 @@ python 01-ok-auto_downloader.py file=ALL.json skip=1500
 python 01-ok-auto_downloader.py file=ALL.json skip=2000
 python 01-ok-auto_downloader.py file=ALL.json skip=2500
 python 01-ok-auto_downloader.py file=ALL.json skip=3000
+python 01-ok-auto_downloader.py file=ALL.json skip=3500
+python 01-ok-auto_downloader.py file=ALL.json skip=4000
 python 01-ok-auto_downloader.py file=ALL.json skip=4500
 python 01-ok-auto_downloader.py file=ALL.json skip=5000
 

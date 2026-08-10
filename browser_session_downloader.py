@@ -23,7 +23,10 @@ from bs4 import BeautifulSoup
 import json
 import os
 import re
-from urllib.parse import unquote, urlparse
+import subprocess
+import threading
+import concurrent.futures
+from urllib.parse import unquote, urlparse, urlencode
 import time
 import sys
 
@@ -107,6 +110,62 @@ class BrowserSessionDownloader:
         
         return valid_modules
     
+    def _curl_post(self, url, data, referer):
+        """POST via curl.exe (bypasses Cloudflare's block of python-requests' TLS fingerprint).
+
+        Uses headers captured verbatim from the user's real browser request
+        (self.extra_headers, extracted from curl_cmd.txt) when available, since
+        Cloudflare's bot check keys off fingerprint headers like sec-ch-ua that a
+        hand-built header set is easy to get subtly wrong.
+
+        Returns (status_code, response_text).
+        """
+        cookie_str = '; '.join(f'{c.name}={c.value}' for c in self.session.cookies)
+        user_agent = self.session.headers.get('user-agent', '')
+
+        base_headers = {
+            'accept': 'application/json, text/javascript, */*; q=0.01',
+            'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'user-agent': user_agent,
+            'x-requested-with': 'XMLHttpRequest',
+            'origin': 'https://sachtienganhhanoi.com',
+            'referer': referer,
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-origin',
+        }
+        base_headers.update(getattr(self, 'extra_headers', None) or {})
+        # referer must match the page this specific request is for, not whatever
+        # page extra_headers was captured from
+        base_headers['referer'] = referer
+
+        cmd = ['curl', '-s', '-o', '-', '-w', '\n__HTTP_STATUS__:%{http_code}', url]
+        for name, value in base_headers.items():
+            cmd += ['-H', f'{name}: {value}']
+        cmd += ['-b', cookie_str, '--data-raw', urlencode(data)]
+
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        except Exception as e:
+            print(f"❌ curl subprocess failed: {e}")
+            return 0, ''
+
+        output = result.stdout
+        marker = '\n__HTTP_STATUS__:'
+        idx = output.rfind(marker)
+        if idx == -1:
+            print(f"❌ curl output missing status marker (stderr: {result.stderr[:200]})")
+            return 0, output
+
+        body = output[:idx]
+        status_str = output[idx + len(marker):].strip()
+        try:
+            status_code = int(status_str)
+        except ValueError:
+            status_code = 0
+
+        return status_code, body
+
     def get_playlist_data(self, wpcp_data, ajax_nonce, page_url):
         """Get playlist data using AJAX call with browser session data"""
         print("📡 Fetching playlist data...")
@@ -132,30 +191,24 @@ class BrowserSessionDownloader:
         print(f"   Token: {ajax_data['listtoken']}")
         print(f"   Nonce: {ajax_data['_ajax_nonce']}")
         
-        # Headers for AJAX request
-        ajax_headers = {
-            'origin': 'https://sachtienganhhanoi.com',
-            'referer': page_url,
-            'sec-fetch-dest': 'empty',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'same-origin'
-        }
-        
-        # Make AJAX request
-        response = self.session.post(ajax_url, data=ajax_data, headers=ajax_headers)
-        
-        print(f"📊 Response: {response.status_code} | Length: {len(response.text)} chars")
-        
-        if response.status_code != 200:
-            print(f"❌ AJAX request failed: {response.status_code}")
+        # Make AJAX request via curl.exe instead of `requests`.
+        # Cloudflare's WAF fingerprints python-requests' TLS handshake and blocks it
+        # with a 403 for this specific action, even with valid cookies/nonce, while
+        # curl.exe passes through fine. See project notes for details.
+        status_code, response_text = self._curl_post(ajax_url, ajax_data, page_url)
+
+        print(f"📊 Response: {status_code} | Length: {len(response_text)} chars")
+
+        if status_code != 200:
+            print(f"❌ AJAX request failed: {status_code}")
             return None
-        
-        if not response.text.strip():
+
+        if not response_text.strip():
             print("❌ Empty response")
             return None
-        
+
         try:
-            playlist_data = response.json()
+            playlist_data = json.loads(response_text)
             if isinstance(playlist_data, dict):
                 # Convert to format expected by download function
                 # Check if this looks like audio file data by examining the structure
@@ -214,7 +267,7 @@ class BrowserSessionDownloader:
                 return None
         except json.JSONDecodeError as e:
             print(f"❌ Failed to parse JSON response: {e}")
-            print(f"Response preview: {response.text[:200]}...")
+            print(f"Response preview: {response_text[:200]}...")
             return None
     
     def extract_onedrive_url(self, download_url):
@@ -245,141 +298,133 @@ class BrowserSessionDownloader:
         else:
             return f"{size_bytes/(1024*1024):.1f} MB"
     
-    def download_files(self, playlist_data, page_title="Audio_Files", reverse_order=False):
-        """Download all audio files from playlist"""
+    def _download_single_file(self, file_info, index, total, download_dir, log):
+        """Download one file, trying URL variants with retries. Returns True on success."""
+        display_name = file_info.get('name', f'audio_{index}')
+        filename = file_info.get('original_name', display_name)
+        safe_name = self.safe_filename(filename)
+        download_url = file_info.get('downloadUrl', '')
+        file_size = file_info.get('size', 0)
+        file_extension = file_info.get('extension', '.mp3')
+        file_path = os.path.join(download_dir, f"{safe_name}{file_extension}")
+        prefix = f"{index:3d}/{total}"
+
+        if os.path.exists(file_path):
+            existing_size = os.path.getsize(file_path)
+            match_note = "size matches" if file_size and existing_size == file_size else f"expected {self.format_size(file_size)}" if file_size else ""
+            log(f"{prefix} ⏭️  Skipping (already exists, {self.format_size(existing_size)}, {match_note}): {display_name}")
+            return True
+
+        log(f"{prefix} 📥 Downloading ({self.format_size(file_size)}): {display_name}")
+
+        if not download_url:
+            log(f"{prefix} ❌ No download URL found: {display_name}")
+            return False
+
+        onedrive_url = self.extract_onedrive_url(download_url)
+        url_variants = [
+            onedrive_url,
+            onedrive_url.replace('&download=1', '') + '&download=1',
+            onedrive_url + ('&' if '?' in onedrive_url else '?') + 'download=1'
+        ]
+
+        for variant_num, url in enumerate(url_variants, 1):
+            max_retries = 3
+            for retry_count in range(max_retries):
+                try:
+                    if retry_count > 0:
+                        log(f"{prefix} 🔄 Retry {retry_count}/3 (variant {variant_num}) after 30s wait: {display_name}")
+                        time.sleep(30)
+
+                    start_time = time.time()
+                    # download_url actually points back at sachtienganhhanoi.com's own
+                    # admin-ajax.php (action=shareonedrive-download), which proxies/redirects
+                    # to the real OneDrive file — so it still needs the login cookies, not
+                    # just browser-like headers. Snapshot headers+cookies instead of sharing
+                    # self.session directly so this is safe to call from many threads at once.
+                    response = requests.get(url, headers=dict(self.session.headers), cookies=self._cookie_snapshot, stream=True, timeout=30)
+
+                    content_type = response.headers.get('content-type', '').lower()
+                    if 'application/json' in content_type or 'text/html' in content_type:
+                        log(f"{prefix} ⚪ Got {response.status_code} {content_type} (not file content), variant {variant_num}: {display_name} | body: {response.text[:150]!r}")
+                        break  # wrong content type, don't retry this variant
+
+                    with open(file_path, 'wb') as f:
+                        for chunk in response.iter_content(chunk_size=8192):
+                            if chunk:
+                                f.write(chunk)
+
+                    download_time = time.time() - start_time
+                    actual_size = os.path.getsize(file_path)
+
+                    if actual_size > 0:
+                        speed = actual_size / download_time / (1024 * 1024)
+                        size_note = "size match perfect" if file_size and actual_size == file_size else (
+                            f"⚠️ size mismatch: expected {file_size:,}, got {actual_size:,}" if file_size else "")
+                        log(f"{prefix} ✅ Downloaded {actual_size:,} bytes in {download_time:.1f}s ({speed:.1f} MB/s), {size_note}: {display_name}")
+                        return True
+                    else:
+                        if os.path.exists(file_path):
+                            os.remove(file_path)
+
+                except Exception as e:
+                    if retry_count < max_retries - 1:
+                        log(f"{prefix} ⚠️  Error (will retry): {e}: {display_name}")
+                    else:
+                        log(f"{prefix} ❌ Final error after {max_retries} attempts on variant {variant_num}: {e}: {display_name}")
+
+        log(f"{prefix} ❌ Failed to download after trying all variants: {display_name}")
+        return False
+
+    def download_files(self, playlist_data, page_title="Audio_Files", reverse_order=False, max_workers=10):
+        """Download all audio files from playlist, up to max_workers in parallel"""
         files = playlist_data.get('files', [])
         if not files:
             print("❌ No files found in playlist")
             return
-        
+
+        # Snapshot cookies once up front (dict is safe to read from many threads;
+        # the live CookieJar on self.session is not guaranteed to be)
+        self._cookie_snapshot = requests.utils.dict_from_cookiejar(self.session.cookies)
+
         # Apply reverse order if requested
         if reverse_order:
             files = list(reversed(files))
             print(f"🔄 Files order reversed - downloading from last to first")
-        
+
         # Create download directory in Download folder
         safe_title = self.safe_filename(page_title)
-        base_download_dir = "G:/Download_TiengAnhAudio"
+        base_download_dir = "N:/Download_TiengAnhAudio"
         download_dir = os.path.join(base_download_dir, safe_title)
         os.makedirs(download_dir, exist_ok=True)
         print(f"📁 Created directory: {download_dir}")
-        
-        print(f"🚀 Starting download of {len(files)} files...")
+
+        print(f"🚀 Starting download of {len(files)} files with {max_workers} parallel threads...")
         print("-" * 50)
-        
-        successful_downloads = 0
-        failed_downloads = 0
-        
-        for i, file_info in enumerate(files, 1):
-            # Use original_name for filename if available, otherwise use name
-            display_name = file_info.get('name', f'audio_{i}')
-            filename = file_info.get('original_name', display_name)
-            safe_name = self.safe_filename(filename)
-            download_url = file_info.get('downloadUrl', '')
-            file_size = file_info.get('size', 0)
-            file_extension = file_info.get('extension', '.mp3')  # Get extension from file_info
-            
-            # Check if file already exists
-            file_path = os.path.join(download_dir, f"{safe_name}{file_extension}")
-            if os.path.exists(file_path):
-                existing_size = os.path.getsize(file_path)
-                print(f"{i:3d}/{len(files)} ⏭️  Skipping: {display_name}")
-                print(f"          File already exists ({self.format_size(existing_size)})")
-                
-                # Optional: Check if size matches (for verification)
-                if file_size > 0 and existing_size == file_size:
-                    print("          ✅ Size matches - file complete")
-                elif file_size > 0:
-                    print(f"          ⚠️  Size mismatch: expected {self.format_size(file_size)}")
-                
-                successful_downloads += 1
-                continue
-            
-            print(f"{i:3d}/{len(files)} 📥 Downloading: {display_name}")
-            print(f"          Size: {file_size:,} bytes ({self.format_size(file_size)})")
-            
-            if not download_url:
-                print("          ❌ No download URL found")
-                failed_downloads += 1
-                continue
-            
-            # Extract OneDrive URL
-            onedrive_url = self.extract_onedrive_url(download_url)
-            
-            # Try different URL variants
-            url_variants = [
-                onedrive_url,
-                onedrive_url.replace('&download=1', '') + '&download=1',
-                onedrive_url + ('&' if '?' in onedrive_url else '?') + 'download=1'
-            ]
-            
-            downloaded = False
-            for variant_num, url in enumerate(url_variants, 1):
-                print(f"          Trying URL variant {variant_num}...")
-                
-                # Retry mechanism: try each URL variant up to 3 times
-                max_retries = 3
-                for retry_count in range(max_retries):
-                    try:
-                        if retry_count > 0:
-                            print(f"          🔄 Retry {retry_count}/3 after 30s wait...")
-                            time.sleep(30)  # Wait 30 seconds before retry
-                        
-                        start_time = time.time()
-                        response = self.session.get(url, stream=True, timeout=30)
-                        
-                        # Check content type
-                        content_type = response.headers.get('content-type', '').lower()
-                        if 'application/json' in content_type or 'text/html' in content_type:
-                            print(f"          ⚪ Got {content_type}, not file content")
-                            break  # Don't retry for wrong content type
-                        
-                        # Download file
-                        file_path = os.path.join(download_dir, f"{safe_name}{file_extension}")
-                        with open(file_path, 'wb') as f:
-                            for chunk in response.iter_content(chunk_size=8192):
-                                if chunk:
-                                    f.write(chunk)
-                        
-                        end_time = time.time()
-                        download_time = end_time - start_time
-                        actual_size = os.path.getsize(file_path)
-                        
-                        if actual_size > 0:
-                            speed = actual_size / download_time / (1024*1024)  # MB/s
-                            retry_info = f" (retry {retry_count + 1})" if retry_count > 0 else ""
-                            print(f"          ✅ Downloaded {actual_size:,} bytes in {download_time:.1f}s ({speed:.1f} MB/s){retry_info}")
-                            
-                            # Verify file size
-                            if file_size > 0:
-                                if actual_size == file_size:
-                                    print(f"          ✅ Size match perfect!")
-                                else:
-                                    print(f"          ⚠️  Size mismatch: expected {file_size:,}, got {actual_size:,}")
-                            
-                            successful_downloads += 1
-                            downloaded = True
-                            break  # Success, exit retry loop
-                        else:
-                            print(f"          ❌ Downloaded file is empty")
-                            if os.path.exists(file_path):
-                                os.remove(file_path)
-                    
-                    except Exception as e:
-                        error_msg = str(e)
-                        if retry_count < max_retries - 1:
-                            print(f"          ⚠️  Error (will retry): {error_msg}")
-                        else:
-                            print(f"          ❌ Final error after {max_retries} attempts: {error_msg}")
-                
-                # If downloaded successfully, break out of URL variant loop
-                if downloaded:
-                    break
-            
-            if not downloaded:
-                print(f"          ❌ Failed to download after trying all variants")
-                failed_downloads += 1
-        
+
+        print_lock = threading.Lock()
+
+        def log(message):
+            with print_lock:
+                print(message)
+
+        results = [False] * len(files)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_index = {
+                executor.submit(self._download_single_file, file_info, i, len(files), download_dir, log): i - 1
+                for i, file_info in enumerate(files, 1)
+            }
+            for future in concurrent.futures.as_completed(future_to_index):
+                idx = future_to_index[future]
+                try:
+                    results[idx] = future.result()
+                except Exception as e:
+                    log(f"❌ Unexpected error downloading item {idx + 1}: {e}")
+                    results[idx] = False
+
+        successful_downloads = sum(1 for r in results if r)
+        failed_downloads = sum(1 for r in results if not r)
+
         print("\n" + "=" * 50)
         print("📊 DOWNLOAD SUMMARY")
         print("=" * 50)
@@ -395,10 +440,21 @@ class BrowserSessionDownloader:
         else:
             print(f"\n❌ No files were downloaded successfully")
     
+    def title_from_url(self, audio_page_url):
+        """Derive a readable title straight from the URL slug (no HTTP request)"""
+        path = urlparse(audio_page_url).path
+        slug = path.strip('/').split('/')[-1]
+        slug = re.sub(r'^audio-', '', slug, flags=re.IGNORECASE)
+        title = slug.replace('-', ' ').replace('_', ' ').strip()
+        return title.title() if title else slug
+
     def get_page_title(self, audio_page_url):
         """Extract page title for folder naming"""
         try:
             response = self.session.get(audio_page_url)
+            if response.status_code != 200:
+                print(f"⚠️  Could not load page for title (status {response.status_code}), deriving title from URL")
+                return self.title_from_url(audio_page_url)
             soup = BeautifulSoup(response.text, 'html.parser')
             title_tag = soup.find('title')
             if title_tag:
@@ -424,26 +480,40 @@ class BrowserSessionDownloader:
                 return title
         except:
             pass
-        
-        # Fallback: extract from URL
-        path = urlparse(audio_page_url).path
-        return path.split('/')[-2] if path.endswith('/') else path.split('/')[-1]
-    
-    def download_from_url(self, audio_page_url, cookies_dict, ajax_nonce, reverse_order=False):
-        """Complete workflow: set cookies -> extract data -> download files"""
+
+        # Fallback: derive from URL slug
+        return self.title_from_url(audio_page_url)
+
+    def download_from_url(self, audio_page_url, cookies_dict, ajax_nonce, reverse_order=False, manual_wpcp=None, extra_headers=None, max_workers=10):
+        """Complete workflow: set cookies -> extract data -> download files
+
+        If manual_wpcp (dict with token/account_id/drive_id) is provided, the page-HTML
+        GET request is skipped entirely — useful when Cloudflare blocks document GET
+        requests but still allows the admin-ajax.php AJAX endpoint through.
+
+        extra_headers (dict), when given, is a verbatim header set captured from a real
+        browser request (curl_cmd.txt) and is used for the admin-ajax.php curl call so
+        Cloudflare's bot-fingerprint check (sec-ch-ua, accept-language, etc.) passes.
+        """
         print("🎯 BROWSER SESSION AUDIO DOWNLOADER")
         print("=" * 50)
         if reverse_order:
             print("🔄 Reverse order mode enabled")
-        
+
+        self.extra_headers = extra_headers or {}
+
         # Step 1: Set browser cookies
         self.set_browser_cookies(cookies_dict)
-        
-        # Step 2: Extract wpcp data
-        wpcp_modules = self.extract_wpcp_data(audio_page_url)
-        if not wpcp_modules:
-            return False
-        
+
+        # Step 2: Get wpcp data (skip page GET if it was supplied manually)
+        if manual_wpcp:
+            print("✅ Using manually supplied playlist token/account_id/drive_id (skipping page GET)")
+            wpcp_modules = [{**manual_wpcp, 'module_number': 1}]
+        else:
+            wpcp_modules = self.extract_wpcp_data(audio_page_url)
+            if not wpcp_modules:
+                return False
+
         # Step 3: Get page title for folder naming
         page_title = self.get_page_title(audio_page_url)
         
@@ -459,6 +529,7 @@ class BrowserSessionDownloader:
             playlist_data = self.get_playlist_data(module_data, ajax_nonce, audio_page_url)
             if not playlist_data:
                 print(f"❌ Failed to get playlist data for module {module_num}")
+                # exit(1)
                 overall_success = False
                 continue
             
@@ -469,7 +540,7 @@ class BrowserSessionDownloader:
                 module_folder = page_title
             
             # Download files for this module
-            self.download_files(playlist_data, module_folder, reverse_order)
+            self.download_files(playlist_data, module_folder, reverse_order, max_workers=max_workers)
         
         return overall_success
 

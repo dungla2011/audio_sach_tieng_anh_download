@@ -6,12 +6,12 @@ Automatically downloads audio files from any audio page using command line argum
 Can process single URLs or batch process from JSON files.
 
 Usage:
-    python auto_downloader.py <audio_page_url>
-    python auto_downloader.py file=<json_filename>
+    python 01-ok-auto_downloader.py <audio_page_url>
+    python 01-ok-auto_downloader.py file=<json_filename>
     
 Examples:
-    python auto_downloader.py https://sachtienganhhanoi.com/audio-now-i-know-5-student-book-audio-cd/
-    python auto_downloader.py file=ALL_AUDIO_ITEMS_5879_items.json
+    python 01-ok-auto_downloader.py https://sachtienganhhanoi.com/audio-now-i-know-5-student-book-audio-cd/
+    python 01-ok-auto_downloader.py file=ALL.json
     
 Note: Uses cookies and nonce from the working session. Update these if they expire.
 """
@@ -78,12 +78,40 @@ def load_cookies_from_curl():
         action_match = re.search(r'action=([^&^%]+)', curl_content)
         if action_match:
             action = action_match.group(1).replace('^&', '&')
-        
-        return cookies, nonce, action
-        
+
+        # Extract playlist identifiers so we can call admin-ajax.php directly,
+        # bypassing the page HTML GET (which Cloudflare may block for scripts).
+        manual_wpcp = None
+        if action == 'shareonedrive-get-playlist':
+            account_id_match = re.search(r'account_id=([^&^"]+)', curl_content)
+            drive_id_match = re.search(r'drive_id=([^&^"]+)', curl_content)
+            listtoken_match = re.search(r'listtoken=([^&^"]+)', curl_content)
+            if account_id_match and drive_id_match and listtoken_match:
+                manual_wpcp = {
+                    'token': listtoken_match.group(1),
+                    'account_id': account_id_match.group(1),
+                    'drive_id': drive_id_match.group(1),
+                }
+
+        # Extract all -H headers verbatim (excluding content-length), so the replayed
+        # request matches the real browser request as closely as possible. Cloudflare
+        # blocks requests missing browser-fingerprint headers like sec-ch-ua.
+        headers = {}
+        for m in re.finditer(r"-H\s+'([^:']+):\s*([^']*)'", curl_content):
+            name = m.group(1).strip().lower()
+            if name not in ('content-length',):
+                headers[name] = m.group(2).strip()
+        if not headers:
+            for m in re.finditer(r'-H\s+\^"([^:]+):\s*([^\^]*)\^"', curl_content):
+                name = m.group(1).strip().lower()
+                if name not in ('content-length',):
+                    headers[name] = m.group(2).strip()
+
+        return cookies, nonce, action, manual_wpcp, headers
+
     except Exception as e:
         print(f"⚠️  Warning: Could not load from curl_cmd.txt: {e}")
-        return None, None, None
+        return None, None, None, None, None
 
 def main():
     """Main function with command line argument support"""
@@ -97,17 +125,18 @@ def main():
         print("\nUsage:")
         print(f"    python {os.path.basename(__file__)} <URL_or_file> [options...]")
         print("\nExamples:")
-        print("    python auto_downloader.py https://sachtienganhhanoi.com/audio-now-i-know-5-student-book-audio-cd/")
-        print("    python auto_downloader.py file=ALL_AUDIO_ITEMS_5879_items.json")
-        print("    python auto_downloader.py file=ALL.json revert")
-        print("    python auto_downloader.py file=ALL.json skip=2000")
-        print("    python auto_downloader.py revert skip=1000 file=ALL.json")
-        print("    python auto_downloader.py skip=500 file=ALL.json revert")
+        print("    python 01-ok-auto_downloader.py https://sachtienganhhanoi.com/audio-now-i-know-5-student-book-audio-cd/")
+        print("    python 01-ok-auto_downloader.py file=ALL.json")
+        print("    python 01-ok-auto_downloader.py file=ALL.json revert")
+        print("    python 01-ok-auto_downloader.py file=ALL.json skip=2000")
+        print("    python 01-ok-auto_downloader.py revert skip=1000 file=ALL.json")
+        print("    python 01-ok-auto_downloader.py skip=500 file=ALL.json revert")
         print("\nOptions (can be in any order):")
         print("    revert      Download files in reverse order")
         print("    skip=N      Skip first N items (useful for resuming)")
+        print("    threads=N   Number of parallel download threads (default: 10)")
         sys.exit(1)
-    
+
     # Parse arguments flexibly
     arguments = sys.argv[1:]
 
@@ -116,6 +145,7 @@ def main():
     reverse_order = False
     skip_count = 0
     text_filter = None
+    max_workers = 10
 
     for arg in arguments:
         if arg.startswith('https://') or arg.startswith('file='):
@@ -127,6 +157,14 @@ def main():
                 skip_count = int(arg[5:])  # Remove 'skip=' prefix (5 chars)
             except ValueError:
                 print(f"❌ Error: Invalid skip value. Must be a number. Got: {arg}")
+                sys.exit(1)
+        elif arg.startswith('threads='):
+            try:
+                max_workers = int(arg[8:])
+                if max_workers < 1:
+                    raise ValueError
+            except ValueError:
+                print(f"❌ Error: Invalid threads value. Must be a positive number. Got: {arg}")
                 sys.exit(1)
         elif arg.startswith('text='):
             text_filter = arg[5:].strip('"')
@@ -145,11 +183,12 @@ def main():
         print("🔄 Reverse order mode enabled - downloading from last to first")
     if text_filter:
         print(f"🔍 Text filter enabled: '{text_filter}'")
+    print(f"🧵 Parallel download threads: {max_workers}")
 
     # Check if it's a file parameter
     if main_argument.startswith('file='):
         json_filename = main_argument[5:]  # Remove 'file=' prefix
-        process_json_file(json_filename, reverse_order, skip_count, text_filter)
+        process_json_file(json_filename, reverse_order, skip_count, text_filter, max_workers)
     else:
         # Single URL mode
         audio_url = main_argument
@@ -160,9 +199,9 @@ def main():
             print(f"   Provided: {audio_url}")
             sys.exit(1)
 
-        process_single_url(audio_url, reverse_order)
+        process_single_url(audio_url, reverse_order, max_workers=max_workers)
 
-def process_json_file(json_filename, reverse_order=False, skip_count=0, text_filter=None):
+def process_json_file(json_filename, reverse_order=False, skip_count=0, text_filter=None, max_workers=10):
     """Process all URLs from JSON file, with optional text filter"""
     import json
     import time
@@ -249,11 +288,11 @@ def process_json_file(json_filename, reverse_order=False, skip_count=0, text_fil
         actual_position = i + skip_count
         total_original = len(audio_items) + skip_count
 
-        print(f"\n[{actual_position}/{total_original}] Processing: {title[:60]}...")
+        print(f"\n\n\n[{actual_position}/{total_original}] Processing: {title[:60]}...")
         print(f"URL: {url}")
 
         try:
-            success = process_single_url(url, reverse_order, show_header=False)
+            success = process_single_url(url, reverse_order, show_header=False, max_workers=max_workers)
             if success:
                 successful += 1
                 print("✅ Success")
@@ -280,7 +319,7 @@ def process_json_file(json_filename, reverse_order=False, skip_count=0, text_fil
     print(f"⏱️  Total time: {elapsed:.1f} seconds")
     print(f"📈 Average: {elapsed/len(audio_items):.1f} seconds per item")
 
-def process_single_url(audio_url, reverse_order=False, show_header=True):
+def process_single_url(audio_url, reverse_order=False, show_header=True, max_workers=10):
     """Process a single URL"""
     if show_header:
         print(f"🎯 Target URL: {audio_url}")
@@ -289,8 +328,8 @@ def process_single_url(audio_url, reverse_order=False, show_header=True):
         print()
 
     # Try to auto-load cookies from curl_cmd.txt first
-    auto_cookies, auto_nonce, curl_action = load_cookies_from_curl()
-    
+    auto_cookies, auto_nonce, curl_action, manual_wpcp, curl_headers = load_cookies_from_curl()
+
     if auto_cookies and auto_nonce:
         print(f"🔄 Auto-loaded cookies from curl_cmd.txt")
         if curl_action:
@@ -300,11 +339,10 @@ def process_single_url(audio_url, reverse_order=False, show_header=True):
                 print(f"⚠️  Warning: Nonce is for '{curl_action}', not 'shareonedrive-get-playlist'")
                 print(f"   You need to capture audio play request, not page load request")
         
-        # Filter only relevant cookies
-        cookies_dict = {}
-        for name, value in auto_cookies.items():
-            if name.startswith(('wordpress_', 'WPCP_', 'cf_clearance')):
-                cookies_dict[name] = value
+        # Use all cookies as captured (site's WAF also requires non-wordpress
+        # cookies like _secure_session / wp_lang to be present, not just the
+        # wordpress_/WPCP_/cf_clearance ones)
+        cookies_dict = dict(auto_cookies)
         ajax_nonce = auto_nonce
     else:
         print("🔐 Using fallback cookies")
@@ -324,7 +362,7 @@ def process_single_url(audio_url, reverse_order=False, show_header=True):
     if show_header:
         print("🚀 Starting download process...")
     
-    success = downloader.download_from_url(audio_url, cookies_dict, ajax_nonce, reverse_order)
+    success = downloader.download_from_url(audio_url, cookies_dict, ajax_nonce, reverse_order, manual_wpcp=manual_wpcp, extra_headers=curl_headers, max_workers=max_workers)
     
     if show_header:
         print()
